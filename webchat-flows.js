@@ -12,10 +12,143 @@ window.MyerWebchatFlows = (function () {
       },
       quickReplies: [
         { label: "Track my order", next: "wc_pick_order" },
-        { label: "Return an item", next: "wc_pick_order" },
+        { label: "Return an item", next: "rt_start" },
         { label: "Something arrived damaged", next: "wc_pick_order" },
         { label: "Ask a question", next: "wc_knowledge" }
       ]
+    },
+
+    /* ============================================================
+       Return an item — guided flow (identify → verify by code →
+       reason → confirm label → process → offer bigger size at
+       Chadstone with pickup/send). Uses demo order M2000003.
+       ============================================================ */
+    rt_start: {
+      messages: [{ type: "text", text: "Happy to help with a return. What's the email or order number on the order?" }],
+      onEnter: (ctx) => {
+        ctx.awaitInput("rt_identify", (val) => {
+          // Demo: accept ANY email or order number. Match a real record if one
+          // exists; otherwise proceed with the demo order so the flow always works.
+          const v = val.trim();
+          const order =
+            ctx.W.lookupOrder(v) ||
+            Object.values(ctx.W.orders).find(o => o.email.toLowerCase() === v.toLowerCase()) ||
+            ctx.W.lookupOrder("M2000003");
+          ctx.demoState.order = order;
+          ctx.goToStep("rt_verify_choice");
+        });
+      },
+      quickReplies: [{ label: "Use my email", next: "rt_use_email" }]
+    },
+    rt_use_email: {
+      messages: [],
+      onEnter: (ctx) => { ctx.demoState.order = ctx.W.lookupOrder("M2000003"); },
+      dynamicNext: () => "rt_verify_choice"
+    },
+    rt_verify_choice: {
+      messages: [
+        { type: "text", text: "Thanks — I've found your order. To keep your details safe, I'll send you a one-time code. Where would you like it?" },
+        { type: "note", text: "Lightweight verification — fit for order, returns and tracking. Account changes would step up to MFA." }
+      ],
+      quickReplies: [
+        { label: "Text me a code", next: "rt_code_sms" },
+        { label: "Email me a code", next: "rt_code_email" }
+      ]
+    },
+    rt_code_sms: {
+      messages: [{ type: "text", text: "Sent! Check your phone for a 6-digit code. 📱" }],
+      onEnter: (ctx) => {
+        const o = ctx.demoState.order;
+        ctx.fireSms({ to: ctx.maskM(o.mobile), body: "Myer: your one-time verification code is 4–8–2–9–1–7. It expires in 10 minutes." });
+      },
+      quickReplies: [{ label: "I've entered the code", next: "rt_verified" }]
+    },
+    rt_code_email: {
+      messages: [{ type: "text", text: "Sent! Check your inbox for a 6-digit code. 📩" }],
+      onEnter: (ctx) => {
+        const o = ctx.demoState.order;
+        ctx.fireEmail({ to: ctx.maskE(o.email), subject: "Your Myer verification code", body: "Your one-time verification code is 482917. It expires in 10 minutes." });
+      },
+      quickReplies: [{ label: "I've entered the code", next: "rt_verified" }]
+    },
+    rt_verified: {
+      messages: [
+        { type: "text", text: "Perfect, you're verified. ✅" },
+        { type: "text", text: "Why are you returning this item?" }
+      ],
+      quickReplies: [
+        { label: "Too small", next: "rt_label" },
+        { label: "Changed my mind", next: "rt_label" },
+        { label: "Faulty", next: "rt_label" },
+        { label: "Wrong item sent", next: "rt_label" }
+      ]
+    },
+    rt_label: {
+      messages: [
+        { type: "text", text: "No worries. Here's your return summary — please check before I process it:" },
+        { type: "card", card: { kind: "order", id: "MYR-RTN-2003", item: "Seed Linen Dress — Navy, Size 10", price: "Refund $129.95", thumb: "#cdbfe0" } },
+        { type: "text", text: "I'll email and text a prepaid label once you confirm. Nothing's processed until you say go." }
+      ],
+      quickReplies: [
+        { label: "Confirm return", next: "rt_processed" },
+        { label: "Not yet", next: "rt_hold" }
+      ]
+    },
+    rt_hold: {
+      messages: [{ type: "text", text: "No problem — I'll hold off. Your return isn't processed. Just pick \"Confirm return\" whenever you're ready." }],
+      quickReplies: [
+        { label: "Confirm return", next: "rt_processed" },
+        { label: "Maybe later", next: "wc_bye" }
+      ]
+    },
+    rt_processed: {
+      messages: [{ type: "text", text: "Done! ✅ Your return is set up and a prepaid label is on its way to your email and phone. Your refund of $129.95 lands as soon as it's scanned. 💸" }],
+      onEnter: (ctx) => {
+        const o = ctx.demoState.order;
+        ctx.fireEmail({ to: ctx.maskE(o.email), subject: "Your Myer return label", body: "Return MYR-RTN-2003 — Seed Linen Dress (Size 10). Prepaid label attached. Refund $129.95 on scan." });
+        ctx.fireSms({ to: ctx.maskM(o.mobile), body: "Myer: your prepaid return label is ready. Drop at any Aus Post. Refund $129.95 on scan." });
+        ctx.recordOutcome("resolved");
+      },
+      dynamicNext: () => "rt_exchange_offer"
+    },
+    rt_exchange_offer: {
+      messages: [
+        { type: "text", text: "Before you go — would you like the same dress in a bigger size instead of a refund?" },
+        { type: "text", text: "Good news: the size 12 is in stock at Myer Chadstone — just 3.1km from your delivery address. (Also in stock at Myer Highpoint, 8.4km, and Myer Doncaster, 11km.)" }
+      ],
+      quickReplies: [
+        { label: "Pick up at Chadstone", next: "rt_pickup" },
+        { label: "Send it to me", next: "rt_send" },
+        { label: "No, just refund", next: "rt_refund_only" }
+      ]
+    },
+    rt_pickup: {
+      messages: [{ type: "text", text: "Done! Your size 12 is reserved at Myer Chadstone — collection desk, Level 2. Bring the size 10 when you collect and we'll swap it on the spot. No postage either way. I've sent the collection details to your email and phone. ✅" }],
+      onEnter: (ctx) => {
+        const o = ctx.demoState.order;
+        ctx.fireEmail({ to: ctx.maskE(o.email), subject: "Your Chadstone click & collect", body: "Size 12 reserved at Myer Chadstone (collection desk, Level 2). Bring your size 10 to swap on the spot." });
+        ctx.fireSms({ to: ctx.maskM(o.mobile), body: "Myer: size 12 reserved at Chadstone, Level 2. Bring your size 10 to swap. Details emailed." });
+        ctx.recordOutcome("resolved");
+        ctx.renderCrossSell([
+          { brand: "SEED HERITAGE", title: "Leather Ankle Boot", img: "https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/6618/6618ba15-8068-4b0b-8681-31ca7e11cb28.jpg?output-format=webp" },
+          { brand: "TRENERY", title: "Wool Scarf", img: "https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/c743/c7436019-9f7f-405c-915e-a6c6b9a43b36.jpg?output-format=webp" }
+        ]);
+      },
+      quickReplies: [{ label: "Perfect, thanks", next: "wc_bye" }]
+    },
+    rt_send: {
+      messages: [{ type: "text", text: "Done! I'll post the size 12 out to you, and your prepaid return label for the size 10 is on its way to your email and phone. No postage either way. ✅" }],
+      onEnter: (ctx) => {
+        const o = ctx.demoState.order;
+        ctx.fireEmail({ to: ctx.maskE(o.email), subject: "Your Myer exchange", body: "Size 12 on its way to you; prepaid return label for size 10 attached. No postage." });
+        ctx.fireSms({ to: ctx.maskM(o.mobile), body: "Myer: size 12 is on its way; prepaid return label for size 10 sent. No postage either way." });
+        ctx.recordOutcome("resolved");
+      },
+      quickReplies: [{ label: "Thanks", next: "wc_bye" }]
+    },
+    rt_refund_only: {
+      messages: [{ type: "text", text: "No problem at all — we'll refund $129.95 to your original payment as soon as the dress is scanned. Thanks for shopping with Myer! 💙" }],
+      quickReplies: [{ label: "That's all, thanks", next: "wc_bye" }]
     },
 
     /* ---- Order picker (chip-driven; sets the active order, then verifies) ---- */
@@ -47,18 +180,10 @@ window.MyerWebchatFlows = (function () {
       onEnter: (ctx) => {
         const o = ctx.demoState.order;
         if (!o) { ctx.goToStep("sc_A4"); return; }
-        ctx.awaitInput("verify", (val) => {
-          const hay = val.toLowerCase().replace(/\s+/g, "");
-          const emailOk = hay.includes(o.email.toLowerCase());
-          const mobileOk = hay.includes(o.mobile.replace(/\s+/g, ""));
-          if (emailOk && mobileOk) {
-            ctx.appendBubble({ role: "bot", text: "Perfect, that checks out. I've got your order up. ✅" });
-            ctx.goToStep("sc_" + o.scenario);
-          } else {
-            ctx.demoState.attempts += 1;
-            if (ctx.demoState.attempts >= 2) { ctx.goToStep("wc_route_human"); }
-            else { ctx.goToStep("wc_verify_retry"); }
-          }
+        // Demo: accept whatever they enter and proceed.
+        ctx.awaitInput("verify", () => {
+          ctx.appendBubble({ role: "bot", text: "Perfect, that checks out. I've got your order up. ✅" });
+          ctx.goToStep("sc_" + o.scenario);
         });
       },
       quickReplies: [{ label: "Use the order's details", next: "wc_verify_auto" }]

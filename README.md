@@ -14,22 +14,36 @@ No build step. Either:
 - Double-click `index.html`, **or**
 - Serve the folder: `python3 -m http.server 8000` then open http://localhost:8000
 
-## Demo script
+## Future-state webchat demo
 
-Click the **💬 Myer Assist** launcher (bottom-right), then:
+Open the **Need help?** concierge (bottom-left). It opens with:
 
-1. **Returns** — "Return an item" → pick a reason → "Free post label". Shows order
-   lookup, rich order card, and automated refund resolution.
-2. **Inventory** — "Check stock" → pick an item → see live store-by-store
-   availability → "Click & Collect". Shows real-time inventory + conversational commerce.
-3. **Order status** — "Track my order" → see the tracking timeline + ETA. Shows
-   order-aware answers and status visualisation.
-4. **MYER one & handoff** — "Check my MYER one rewards" for an account-aware
-   balance; "Talk to a person" to see the bot→agent handoff (Sarah joins, bubbles
-   restyle).
+> "Hi! I can track an order or help with a return. What's your order number?"
 
-Free typing also works (e.g. "where is my order"). Use the header **↻** button to
-reset between runs.
+Enter an order number to drive a scenario, then verify with the email + mobile on that
+order (shown below). The order number deterministically selects the branch:
+
+| Order | Verify with | Scenario |
+|---|---|---|
+| M1000001 | jane@email.com / 0412 345 789 | WISMO — split delivery (HERO) |
+| M1000002 | sam@email.com / 0423 111 222 | WISMO — in transit |
+| M1000003 | alex@email.com / 0433 222 333 | WISMO — delivered but disputed (routed) |
+| M1000004 | (any) | Ghost order — no record (routed) |
+| M1000005 | lee@email.com / 0444 333 444 | WISMO — authority to leave |
+| M2000001 | priya@email.com / 0455 444 555 | Returns — faulty (photo → instant label) |
+| M2000002 | chris@email.com / 0466 555 666 | Returns — change of mind |
+| M2000003 | mia@email.com / 0477 666 777 | Returns — too small → Chadstone click & collect |
+| M2000004 | dan@email.com / 0488 777 888 | Returns — damaged, keep it + refund |
+| M2000005 | kim@email.com / 0499 888 999 | Returns — marketplace (routed) |
+
+Watch for: the **faux inbox** (top-right) and **phone SMS toast** (bottom-right) firing on
+sends; **✅ Resolved / 👤 Routed** badges; the **deflection counter** (bottom-left); a
+post-return **cross-sell**; and the **☰ channel-consolidation callout** in the chat header.
+
+> Demo only. Simulated Agentforce-style webchat — not connected to a live Salesforce org or
+> any real system. Not affiliated with Myer. All data is mock; PII is masked in replies.
+> 3-point verification is fit for order/returns/tracking; account changes would step up to MFA
+> (out of scope).
 
 ## Files
 

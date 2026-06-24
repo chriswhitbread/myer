@@ -35,6 +35,7 @@
           </div>
         </div>
         <div class="mw-header__actions">
+          <button class="mw-iconbtn" id="mw-callout-btn" title="Channel consolidation" aria-label="Channel consolidation">☰</button>
           <button class="mw-iconbtn" id="mw-reset" title="Restart demo" aria-label="Restart">↻</button>
           <button class="mw-iconbtn" id="mw-close" title="Close" aria-label="Close">✕</button>
         </div>
@@ -69,6 +70,8 @@
   function toggle() { win.classList.contains("mw-window--open") ? close() : open(); }
 
   launcher.addEventListener("click", open);
+  const calloutBtn = document.getElementById("mw-callout-btn");
+  if (calloutBtn) calloutBtn.addEventListener("click", () => { if (window.MyerDemoUI) window.MyerDemoUI.callout(); });
   document.getElementById("mw-close").addEventListener("click", close);
 
   const messagesEl = document.getElementById("mw-messages");

@@ -34,3 +34,27 @@ img { display: block; max-width: 100%; }
   overflow: hidden;
   white-space: nowrap;
 }
+
+/* Task 3: Primary navigation header */
+.site-header__top {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 76px;
+}
+.logo {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--myer-navy);
+}
+.search { flex: 1; display: flex; max-width: 620px; border: 1px solid var(--border); border-radius: 2px; }
+.search__input { flex: 1; border: 0; padding: 11px 14px; font-size: 14px; outline: none; background: #f7f7f7; }
+.search__btn { border: 0; background: transparent; padding: 0 12px; cursor: pointer; color: var(--myer-navy); }
+.header-icons { display: flex; align-items: center; gap: 18px; font-size: 14px; }
+.header-icons__item { font-size: 16px; }
+.main-nav { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.main-nav__list { display: flex; gap: 24px; list-style: none; height: 46px; align-items: center; font-size: 14px; font-weight: 600; overflow-x: auto; }
+.main-nav__item { cursor: pointer; white-space: nowrap; color: var(--text); }
+.main-nav__item:hover { color: var(--myer-navy); }
+.main-nav__item--sale { color: var(--myer-red); }

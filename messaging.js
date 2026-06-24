@@ -301,7 +301,6 @@
   }
 
   function renderCrossSell(items) {
-    // Full impl in Task 6; stub renders nothing harmful if called early.
     if (window.MyerDemoUI && window.MyerDemoUI.crossSell) window.MyerDemoUI.crossSell(items);
   }
 

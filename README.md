@@ -1,8 +1,9 @@
 # Myer × Salesforce Enhanced Messaging — Demo
 
 A self-contained demo: a faithful rebuild of the myer.com.au homepage with a
-Salesforce-styled Enhanced Messaging chat widget. The widget runs four scripted,
-guided conversation flows to showcase common retail messaging use cases.
+"Myer Concierge" webchat widget. The widget runs a future-state, Agentforce-style
+flow — an order-number auth gate plus 10 scripted WISMO and Returns scenarios — to
+showcase self-service deflection use cases.
 
 > Demo only. Not affiliated with Myer. The messaging widget is simulated — it is
 > not connected to a live Salesforce org.
@@ -48,5 +49,7 @@ post-return **cross-sell**; and the **☰ channel-consolidation callout** in the
 ## Files
 
 - `index.html` / `styles.css` — homepage backdrop
-- `messaging.css` / `messaging.js` — the chat widget
-- `conversations.js` — flow data + step engine (edit this to change scripts)
+- `messaging.css` / `messaging.js` — the Myer Concierge widget + demo UI (inbox, SMS toast, badges, counter, cross-sell, callout)
+- `webchat-data.js` — mock orders + inventory, PII-masking helpers, lookups
+- `webchat-flows.js` — the auth gate + 10 WISMO/Returns scenario flows (edit this to change the demo scripts)
+- `conversations.js` — the original concierge welcome step (fallback; superseded by the webchat entry)

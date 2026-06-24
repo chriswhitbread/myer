@@ -224,7 +224,16 @@
     if (step.agentName) currentAgentName = step.agentName;
     if (step.system) appendSystem(step.system);
 
-    if (stepId === C.welcomeStepId || step.intro === true) { renderIntroCard(step); return; }
+    if (stepId === C.welcomeStepId || step.intro === true) {
+      renderIntroCard(step);
+      if (typeof step.onEnter === "function") {
+        const _W = window.MyerWebchat || {};
+        step.onEnter({ demoState, goToStep, appendBubble, awaitInput, fireEmail, fireSms, recordOutcome,
+          W: _W, maskE: _W.maskEmail, maskM: _W.maskMobile,
+          renderQuickReplies, renderCrossSell });
+      }
+      return;
+    }
 
     for (const msg of step.messages) {
       const typingEl = showTyping();

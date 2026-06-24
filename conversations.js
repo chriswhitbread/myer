@@ -4,13 +4,16 @@ window.MyerConversations = (function () {
 
   const steps = {
     welcome: {
-      messages: [{ type: "text", text: "Hi, I'm Myer Assist 👋 How can I help today?" }],
+      messages: [
+        { type: "text", text: "Hi, how can I help you today? I'm a Virtual Agent, not a real person, but I know lots about Myer." },
+        { type: "text", text: "Please type your enquiry, or select from the list below:" }
+      ],
       quickReplies: [
-        { label: "Return an item", next: "ret_order" },
-        { label: "Check stock", next: "stk_ask" },
-        { label: "Track my order", next: "trk_order" },
-        { label: "Check my MYER one rewards", next: "rew_show" },
-        { label: "Talk to a person", next: "handoff_connect" }
+        { label: "Where is my order?", next: "trk_order" },
+        { label: "I need to return an item.", next: "ret_order" },
+        { label: "Is an item in stock?", next: "stk_ask" },
+        { label: "Check my MYER one rewards.", next: "rew_show" },
+        { label: "Speak to a real person.", next: "handoff_connect" }
       ]
     },
 

@@ -133,6 +133,28 @@
     appendBubble({ role: currentSpeaker, text: "[" + card.kind + " card]" });
   }
 
+  const composer = document.getElementById("mw-composer");
+  const input = document.getElementById("mw-input");
+  composer.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+    clearQuickReplies();
+    appendBubble({ role: "customer", text });
+    const stepId = C.matchKeyword(text);
+    if (stepId) {
+      goToStep(stepId);
+    } else {
+      showTyping();
+      setTimeout(() => {
+        hideTyping();
+        appendBubble({ role: "bot", text: "I can help with returns, stock checks, order tracking, MYER one rewards, or connect you to a person. What would you like to do?" });
+        renderQuickReplies(C.steps.welcome.quickReplies);
+      }, 650);
+    }
+  });
+
   // reset/render wired in Tasks 8 & 10
   function reset() { /* replaced in Task 10 */ }
 

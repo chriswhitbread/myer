@@ -1,6 +1,8 @@
 /* Myer Concierge messaging widget */
 (function () {
   const C = window.MyerConversations;
+  const WF = window.MyerWebchatFlows || { steps: {}, entryStepId: null };
+  function getStep(id) { return (WF.steps && WF.steps[id]) || C.steps[id]; }
   const root = document.getElementById("myer-messaging-root");
 
   const demoState = { order: null, attempts: 0, captured: {}, deflectTotal: 0, deflectResolved: 0 };
@@ -61,7 +63,7 @@
   let started = false;
   function open() {
     win.classList.add("mw-window--open"); win.setAttribute("aria-hidden", "false"); launcher.classList.add("mw-launcher--hidden");
-    if (!started) { started = true; goToStep(C.welcomeStepId); }
+    if (!started) { started = true; goToStep((window.MyerWebchatFlows && window.MyerWebchatFlows.entryStepId) || C.welcomeStepId); }
   }
   function close() { win.classList.remove("mw-window--open"); win.setAttribute("aria-hidden", "true"); launcher.classList.remove("mw-launcher--hidden"); }
   function toggle() { win.classList.contains("mw-window--open") ? close() : open(); }
@@ -164,14 +166,14 @@
   }
 
   async function goToStep(stepId) {
-    const step = C.steps[stepId];
+    const step = getStep(stepId);
     if (!step) return;
     clearQuickReplies();
     if (step.speaker) currentSpeaker = step.speaker;
     if (step.agentName) currentAgentName = step.agentName;
     if (step.system) appendSystem(step.system);
 
-    if (stepId === C.welcomeStepId) { renderIntroCard(step); return; }
+    if (stepId === C.welcomeStepId || step.intro === true) { renderIntroCard(step); return; }
 
     for (const msg of step.messages) {
       const typingEl = showTyping();
@@ -179,6 +181,8 @@
       hideTyping(typingEl);
       if (msg.type === "text") {
         appendBubble({ role: currentSpeaker, text: msg.text });
+      } else if (msg.type === "note") {
+        appendSystem(msg.text);
       } else if (msg.type === "card") {
         renderCard(msg.card);
       }
@@ -271,7 +275,7 @@
   function reset() {
     messagesEl.innerHTML = "";
     resetSpeaker();
-    goToStep(C.welcomeStepId);
+    goToStep((window.MyerWebchatFlows && window.MyerWebchatFlows.entryStepId) || C.welcomeStepId);
   }
   document.getElementById("mw-reset").addEventListener("click", reset);
 

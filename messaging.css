@@ -1,5 +1,5 @@
 /* messaging widget styles — Task 6+ */
-:root { --mw-navy: #001952; --mw-red: #c8102e; --mw-bot: #f1f1f3; }
+:root { --mw-navy: #1f1f1f; --mw-red: #c8102e; --mw-bot: #f1f1f3; }
 .mw-launcher {
   position: fixed; right: 24px; bottom: 24px; z-index: 9999;
   display: flex; align-items: center; gap: 8px; cursor: pointer;

@@ -1,20 +1,19 @@
-/* Myer Assist messaging widget */
+/* Myer Concierge messaging widget */
 (function () {
   const C = window.MyerConversations;
   const root = document.getElementById("myer-messaging-root");
 
   root.innerHTML = `
-    <button class="mw-launcher" id="mw-launcher" aria-label="Open Myer Assist">
+    <button class="mw-launcher" id="mw-launcher" aria-label="Open Myer Concierge">
       <span class="mw-launcher__icon">💬</span>
-      <span class="mw-launcher__label">Myer Assist</span>
-      <span class="mw-launcher__dot"></span>
+      <span class="mw-launcher__label">Need help?</span>
     </button>
     <section class="mw-window" id="mw-window" aria-hidden="true">
       <header class="mw-header">
         <div class="mw-header__id">
           <span class="mw-header__logo">MYER</span>
           <div>
-            <div class="mw-header__title">Myer Assist</div>
+            <div class="mw-header__title">Myer Concierge</div>
             <div class="mw-header__status"><span class="mw-status-dot"></span>Online now</div>
           </div>
         </div>
@@ -25,8 +24,8 @@
       </header>
       <div class="mw-messages" id="mw-messages"></div>
       <form class="mw-composer" id="mw-composer">
-        <input class="mw-composer__input" id="mw-input" type="text" placeholder="Type a message…" autocomplete="off" />
-        <button class="mw-composer__send" type="submit" aria-label="Send">➤</button>
+        <input class="mw-composer__input" id="mw-input" type="text" placeholder="Type here..." autocomplete="off" />
+        <button class="mw-composer__send" type="submit" aria-label="Send">&#9658;</button>
       </form>
     </section>
   `;

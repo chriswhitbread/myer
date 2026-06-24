@@ -83,13 +83,14 @@
   function showTyping() {
     const el = document.createElement("div");
     el.className = "mw-row mw-row--" + currentSpeaker + " mw-typing-row";
-    el.id = "mw-typing";
     const avatarText = currentSpeaker === "agent" ? (currentAgentName ? currentAgentName[0] : "S") : "M";
     el.innerHTML = `<div class="mw-avatar mw-avatar--${currentSpeaker}">${esc(avatarText)}</div><div class="mw-bubble mw-bubble--${currentSpeaker} mw-typing"><span></span><span></span><span></span></div>`;
     messagesEl.appendChild(el);
     scrollDown();
+    return el;
   }
-  function hideTyping() { const t = document.getElementById("mw-typing"); if (t) t.remove(); }
+  // Remove the specific indicator returned by showTyping(); avoids races between overlapping playbacks.
+  function hideTyping(el) { if (el && el.parentNode) el.remove(); }
 
   function clearQuickReplies() {
     messagesEl.querySelectorAll(".mw-quickreplies").forEach((n) => n.remove());
@@ -125,9 +126,9 @@
     if (step.system) appendSystem(step.system);
 
     for (const msg of step.messages) {
-      showTyping();
+      const typingEl = showTyping();
       await sleep(650);
-      hideTyping();
+      hideTyping(typingEl);
       if (msg.type === "text") {
         appendBubble({ role: currentSpeaker, text: msg.text });
       } else if (msg.type === "card") {
@@ -190,9 +191,9 @@
     if (stepId) {
       goToStep(stepId);
     } else {
-      showTyping();
+      const fbTyping = showTyping();
       setTimeout(() => {
-        hideTyping();
+        hideTyping(fbTyping);
         appendBubble({ role: "bot", text: "I can help with returns, stock checks, order tracking, MYER one rewards, or connect you to a person. What would you like to do?" });
         renderQuickReplies(C.steps.welcome.quickReplies);
       }, 650);

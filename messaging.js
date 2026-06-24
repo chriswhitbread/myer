@@ -1,7 +1,22 @@
 /* Myer Concierge messaging widget */
 (function () {
   const C = window.MyerConversations;
+  const WF = window.MyerWebchatFlows || { steps: {}, entryStepId: null };
+  function getStep(id) { return (WF.steps && WF.steps[id]) || C.steps[id]; }
   const root = document.getElementById("myer-messaging-root");
+
+  const demoState = { order: null, attempts: 0, captured: {}, deflectTotal: 0, deflectResolved: 0 };
+  let pendingInput = null; // { kind, onValue }
+  function awaitInput(kind, onValue) { pendingInput = { kind, onValue }; }
+
+  function fireEmail(msg) { if (window.MyerDemoUI && window.MyerDemoUI.email) window.MyerDemoUI.email(msg); }
+  function fireSms(msg) { if (window.MyerDemoUI && window.MyerDemoUI.sms) window.MyerDemoUI.sms(msg); }
+  function recordOutcome(kind) {
+    demoState.deflectTotal += 1;
+    if (kind === "resolved") demoState.deflectResolved += 1;
+    if (window.MyerDemoUI && window.MyerDemoUI.badge) window.MyerDemoUI.badge(kind);
+    if (window.MyerDemoUI && window.MyerDemoUI.counter) window.MyerDemoUI.counter(demoState.deflectResolved, demoState.deflectTotal);
+  }
 
   root.innerHTML = `
     <button class="mw-launcher" id="mw-launcher" aria-label="Open Myer Concierge — need help?" title="Need help?">
@@ -20,6 +35,7 @@
           </div>
         </div>
         <div class="mw-header__actions">
+          <button class="mw-iconbtn" id="mw-callout-btn" title="Channel consolidation" aria-label="Channel consolidation">☰</button>
           <button class="mw-iconbtn" id="mw-reset" title="Restart demo" aria-label="Restart">↻</button>
           <button class="mw-iconbtn" id="mw-close" title="Close" aria-label="Close">✕</button>
         </div>
@@ -48,12 +64,14 @@
   let started = false;
   function open() {
     win.classList.add("mw-window--open"); win.setAttribute("aria-hidden", "false"); launcher.classList.add("mw-launcher--hidden");
-    if (!started) { started = true; goToStep(C.welcomeStepId); }
+    if (!started) { started = true; goToStep((window.MyerWebchatFlows && window.MyerWebchatFlows.entryStepId) || C.welcomeStepId); }
   }
   function close() { win.classList.remove("mw-window--open"); win.setAttribute("aria-hidden", "true"); launcher.classList.remove("mw-launcher--hidden"); }
   function toggle() { win.classList.contains("mw-window--open") ? close() : open(); }
 
   launcher.addEventListener("click", open);
+  const calloutBtn = document.getElementById("mw-callout-btn");
+  if (calloutBtn) calloutBtn.addEventListener("click", () => { if (window.MyerDemoUI) window.MyerDemoUI.callout(); });
   document.getElementById("mw-close").addEventListener("click", close);
 
   const messagesEl = document.getElementById("mw-messages");
@@ -61,6 +79,54 @@
   let currentAgentName = null;
 
   function scrollDown() { messagesEl.scrollTop = messagesEl.scrollHeight; }
+
+  // ---- Demo UI: faux inbox, phone toast, deflection counter, badges, cross-sell, callout ----
+  (function setupDemoUI() {
+    const inbox = document.createElement("div"); inbox.id = "mw-inbox"; inbox.className = "mw-inbox";
+    inbox.innerHTML = `<div class="mw-inbox__head">📧 Inbox <span class="mw-inbox__sub">demo</span></div><div class="mw-inbox__list" id="mw-inbox-list"></div>`;
+    const phone = document.createElement("div"); phone.id = "mw-phone-toast"; phone.className = "mw-phone-toast";
+    const counter = document.createElement("div"); counter.id = "mw-counter"; counter.className = "mw-counter";
+    counter.textContent = "0 of 0 enquiries resolved without an agent";
+    document.body.appendChild(inbox); document.body.appendChild(phone); document.body.appendChild(counter);
+
+    window.MyerDemoUI = {
+      email(msg) {
+        const list = document.getElementById("mw-inbox-list");
+        const item = document.createElement("div"); item.className = "mw-inbox__item";
+        item.innerHTML = `<div class="mw-inbox__from">Myer &lt;noreply@myer.com.au&gt;</div><div class="mw-inbox__subj">${esc(msg.subject)}</div><div class="mw-inbox__to">to ${esc(msg.to)}</div><div class="mw-inbox__body">${esc(msg.body)}</div>`;
+        list.prepend(item); inbox.classList.add("mw-inbox--show");
+      },
+      sms(msg) {
+        phone.innerHTML = `<div class="mw-phone-toast__app">Messages · now</div><div class="mw-phone-toast__from">MYER</div><div class="mw-phone-toast__body">${esc(msg.body)}</div><div class="mw-phone-toast__to">${esc(msg.to)}</div>`;
+        phone.classList.add("mw-phone-toast--show");
+        clearTimeout(phone._t); phone._t = setTimeout(() => phone.classList.remove("mw-phone-toast--show"), 6000);
+      },
+      badge(kind) {
+        const row = document.createElement("div"); row.className = "mw-row mw-row--bot";
+        const label = kind === "resolved" ? "✅ Resolved instantly" : "👤 Routed to specialist";
+        row.innerHTML = `<div class="mw-badge mw-badge--${esc(kind)}">${label}</div>`;
+        messagesEl.appendChild(row); scrollDown();
+      },
+      counter(resolved, total) {
+        counter.textContent = `${resolved} of ${total} enquiries resolved without an agent`;
+        counter.classList.add("mw-counter--show");
+      },
+      crossSell(items) {
+        const row = document.createElement("div"); row.className = "mw-row mw-row--bot";
+        const tiles = items.map((i) => `<div class="mw-xsell__tile"><div class="mw-xsell__img" style="background-image:url('${encodeURI(i.img)}')"></div><div class="mw-xsell__brand">${esc(i.brand)}</div><div class="mw-xsell__title">${esc(i.title)}</div></div>`).join("");
+        row.innerHTML = `<div class="mw-xsell"><div class="mw-xsell__head">While you're here, these go well with it:</div><div class="mw-xsell__tiles">${tiles}</div></div>`;
+        messagesEl.appendChild(row); scrollDown();
+      },
+      callout() {
+        let el = document.getElementById("mw-callout");
+        if (el) { el.remove(); return; }
+        el = document.createElement("div"); el.id = "mw-callout"; el.className = "mw-callout";
+        el.innerHTML = `<button class="mw-callout__x" aria-label="Close">✕</button><h4>One chat — not five systems</h4><p>This whole journey happened in a single Agentforce chat, replacing the current spread:</p><ul><li>Genesys / Oration</li><li>Freshdesk</li><li>BSP</li><li>ShipIT</li></ul>`;
+        document.body.appendChild(el);
+        el.querySelector(".mw-callout__x").addEventListener("click", () => el.remove());
+      }
+    };
+  })();
 
   function appendBubble({ role, text }) {
     const wrap = document.createElement("div");
@@ -151,14 +217,23 @@
   }
 
   async function goToStep(stepId) {
-    const step = C.steps[stepId];
+    const step = getStep(stepId);
     if (!step) return;
     clearQuickReplies();
     if (step.speaker) currentSpeaker = step.speaker;
     if (step.agentName) currentAgentName = step.agentName;
     if (step.system) appendSystem(step.system);
 
-    if (stepId === C.welcomeStepId) { renderIntroCard(step); return; }
+    if (stepId === C.welcomeStepId || step.intro === true) {
+      renderIntroCard(step);
+      if (typeof step.onEnter === "function") {
+        const _W = window.MyerWebchat || {};
+        step.onEnter({ demoState, goToStep, appendBubble, awaitInput, fireEmail, fireSms, recordOutcome,
+          W: _W, maskE: _W.maskEmail, maskM: _W.maskMobile,
+          renderQuickReplies, renderCrossSell });
+      }
+      return;
+    }
 
     for (const msg of step.messages) {
       const typingEl = showTyping();
@@ -166,10 +241,22 @@
       hideTyping(typingEl);
       if (msg.type === "text") {
         appendBubble({ role: currentSpeaker, text: msg.text });
+      } else if (msg.type === "note") {
+        appendSystem(msg.text);
       } else if (msg.type === "card") {
         renderCard(msg.card);
       }
       await sleep(180);
+    }
+    if (typeof step.onEnter === "function") {
+      const _W = window.MyerWebchat || {};
+      step.onEnter({ demoState, goToStep, appendBubble, awaitInput, fireEmail, fireSms, recordOutcome,
+        W: _W, maskE: _W.maskEmail, maskM: _W.maskMobile,
+        renderQuickReplies, renderCrossSell });
+    }
+    if (typeof step.dynamicNext === "function") {
+      const nx = step.dynamicNext({ demoState, W: window.MyerWebchat });
+      if (nx) { goToStep(nx); return; }
     }
     renderQuickReplies(step.quickReplies);
   }
@@ -213,6 +300,10 @@
     scrollDown();
   }
 
+  function renderCrossSell(items) {
+    if (window.MyerDemoUI && window.MyerDemoUI.crossSell) window.MyerDemoUI.crossSell(items);
+  }
+
   const composer = document.getElementById("mw-composer");
   const input = document.getElementById("mw-input");
   composer.addEventListener("submit", (e) => {
@@ -222,6 +313,11 @@
     input.value = "";
     clearQuickReplies();
     appendBubble({ role: "customer", text });
+    if (pendingInput) {
+      const handler = pendingInput; pendingInput = null;
+      handler.onValue(text);
+      return;
+    }
     const stepId = C.matchKeyword(text);
     if (stepId) {
       goToStep(stepId);
@@ -238,11 +334,11 @@
   function reset() {
     messagesEl.innerHTML = "";
     resetSpeaker();
-    goToStep(C.welcomeStepId);
+    goToStep((window.MyerWebchatFlows && window.MyerWebchatFlows.entryStepId) || C.welcomeStepId);
   }
   document.getElementById("mw-reset").addEventListener("click", reset);
 
   function resetSpeaker() { currentSpeaker = "bot"; currentAgentName = null; }
 
-  window.MyerWidget = { open, close, toggle, reset, goToStep, resetSpeaker, _root: root, _C: C };
+  window.MyerWidget = { open, close, toggle, reset, goToStep, resetSpeaker, _root: root, _C: C, demoState, awaitInput, fireEmail, fireSms, recordOutcome };
 })();

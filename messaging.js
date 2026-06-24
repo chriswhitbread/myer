@@ -116,6 +116,38 @@
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+  // The welcome step renders as a single bordered "intro card" (greeting text +
+  // option pills grouped together with the avatar), matching the real Myer Concierge.
+  function renderIntroCard(step) {
+    const row = document.createElement("div");
+    row.className = "mw-row mw-row--bot mw-intro-row";
+    const card = document.createElement("div");
+    card.className = "mw-intro-card";
+    step.messages.forEach((msg) => {
+      if (msg.type !== "text") return;
+      const p = document.createElement("p");
+      p.className = "mw-intro-card__text";
+      p.textContent = msg.text;
+      card.appendChild(p);
+    });
+    (step.quickReplies || []).forEach((qr) => {
+      const btn = document.createElement("button");
+      btn.className = "mw-chip mw-chip--intro";
+      btn.textContent = qr.label;
+      btn.addEventListener("click", () => {
+        clearQuickReplies();
+        row.remove();
+        if (qr.label !== "(continue)") appendBubble({ role: "customer", text: qr.label });
+        goToStep(qr.next);
+      });
+      card.appendChild(btn);
+    });
+    row.innerHTML = `<div class="mw-avatar mw-avatar--bot">M</div>`;
+    row.appendChild(card);
+    messagesEl.appendChild(row);
+    scrollDown();
+  }
+
   async function goToStep(stepId) {
     const step = C.steps[stepId];
     if (!step) return;
@@ -123,6 +155,8 @@
     if (step.speaker) currentSpeaker = step.speaker;
     if (step.agentName) currentAgentName = step.agentName;
     if (step.system) appendSystem(step.system);
+
+    if (stepId === C.welcomeStepId) { renderIntroCard(step); return; }
 
     for (const msg of step.messages) {
       const typingEl = showTyping();

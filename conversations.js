@@ -5,8 +5,8 @@ window.MyerConversations = (function () {
   const steps = {
     welcome: {
       messages: [
-        { type: "text", text: "Hi, how can I help you today? I'm a Virtual Agent, not a real person, but I know lots about Myer." },
-        { type: "text", text: "Please type your enquiry, or select from the list below:" }
+        { type: "text", text: "Hi, welcome to Myer! How can I help you today?" },
+        { type: "text", text: "Choose an option below or type your question." }
       ],
       quickReplies: [
         { label: "Where is my order?", next: "trk_order" },

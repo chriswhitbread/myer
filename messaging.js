@@ -77,6 +77,54 @@
 
   function scrollDown() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 
+  // ---- Demo UI: faux inbox, phone toast, deflection counter, badges, cross-sell, callout ----
+  (function setupDemoUI() {
+    const inbox = document.createElement("div"); inbox.id = "mw-inbox"; inbox.className = "mw-inbox";
+    inbox.innerHTML = `<div class="mw-inbox__head">📧 Inbox <span class="mw-inbox__sub">demo</span></div><div class="mw-inbox__list" id="mw-inbox-list"></div>`;
+    const phone = document.createElement("div"); phone.id = "mw-phone-toast"; phone.className = "mw-phone-toast";
+    const counter = document.createElement("div"); counter.id = "mw-counter"; counter.className = "mw-counter";
+    counter.textContent = "0 of 0 enquiries resolved without an agent";
+    document.body.appendChild(inbox); document.body.appendChild(phone); document.body.appendChild(counter);
+
+    window.MyerDemoUI = {
+      email(msg) {
+        const list = document.getElementById("mw-inbox-list");
+        const item = document.createElement("div"); item.className = "mw-inbox__item";
+        item.innerHTML = `<div class="mw-inbox__from">Myer &lt;noreply@myer.com.au&gt;</div><div class="mw-inbox__subj">${esc(msg.subject)}</div><div class="mw-inbox__to">to ${esc(msg.to)}</div><div class="mw-inbox__body">${esc(msg.body)}</div>`;
+        list.prepend(item); inbox.classList.add("mw-inbox--show");
+      },
+      sms(msg) {
+        phone.innerHTML = `<div class="mw-phone-toast__app">Messages · now</div><div class="mw-phone-toast__from">MYER</div><div class="mw-phone-toast__body">${esc(msg.body)}</div><div class="mw-phone-toast__to">${esc(msg.to)}</div>`;
+        phone.classList.add("mw-phone-toast--show");
+        clearTimeout(phone._t); phone._t = setTimeout(() => phone.classList.remove("mw-phone-toast--show"), 6000);
+      },
+      badge(kind) {
+        const row = document.createElement("div"); row.className = "mw-row mw-row--bot";
+        const label = kind === "resolved" ? "✅ Resolved instantly" : "👤 Routed to specialist";
+        row.innerHTML = `<div class="mw-badge mw-badge--${esc(kind)}">${label}</div>`;
+        messagesEl.appendChild(row); scrollDown();
+      },
+      counter(resolved, total) {
+        counter.textContent = `${resolved} of ${total} enquiries resolved without an agent`;
+        counter.classList.add("mw-counter--show");
+      },
+      crossSell(items) {
+        const row = document.createElement("div"); row.className = "mw-row mw-row--bot";
+        const tiles = items.map((i) => `<div class="mw-xsell__tile"><div class="mw-xsell__img" style="background-image:url('${encodeURI(i.img)}')"></div><div class="mw-xsell__brand">${esc(i.brand)}</div><div class="mw-xsell__title">${esc(i.title)}</div></div>`).join("");
+        row.innerHTML = `<div class="mw-xsell"><div class="mw-xsell__head">While you're here, these go well with it:</div><div class="mw-xsell__tiles">${tiles}</div></div>`;
+        messagesEl.appendChild(row); scrollDown();
+      },
+      callout() {
+        let el = document.getElementById("mw-callout");
+        if (el) { el.remove(); return; }
+        el = document.createElement("div"); el.id = "mw-callout"; el.className = "mw-callout";
+        el.innerHTML = `<button class="mw-callout__x" aria-label="Close">✕</button><h4>One chat — not five systems</h4><p>This whole journey happened in a single Agentforce chat, replacing the current spread:</p><ul><li>Genesys / Oration</li><li>Freshdesk</li><li>BSP</li><li>ShipIT</li></ul>`;
+        document.body.appendChild(el);
+        el.querySelector(".mw-callout__x").addEventListener("click", () => el.remove());
+      }
+    };
+  })();
+
   function appendBubble({ role, text }) {
     const wrap = document.createElement("div");
     wrap.className = "mw-row mw-row--" + role;

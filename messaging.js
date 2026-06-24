@@ -155,8 +155,12 @@
     }
   });
 
-  // reset/render wired in Tasks 8 & 10
-  function reset() { /* replaced in Task 10 */ }
+  function reset() {
+    messagesEl.innerHTML = "";
+    resetSpeaker();
+    goToStep(C.welcomeStepId);
+  }
+  document.getElementById("mw-reset").addEventListener("click", reset);
 
   function resetSpeaker() { currentSpeaker = "bot"; currentAgentName = null; }
 

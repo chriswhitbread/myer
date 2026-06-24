@@ -185,8 +185,9 @@
       await sleep(180);
     }
     if (typeof step.onEnter === "function") {
+      const _W = window.MyerWebchat || {};
       step.onEnter({ demoState, goToStep, appendBubble, awaitInput, fireEmail, fireSms, recordOutcome,
-        W: window.MyerWebchat, maskE: window.MyerWebchat.maskEmail, maskM: window.MyerWebchat.maskMobile,
+        W: _W, maskE: _W.maskEmail, maskM: _W.maskMobile,
         renderQuickReplies, renderCrossSell });
     }
     if (typeof step.dynamicNext === "function") {

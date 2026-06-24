@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MYER</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="messaging.css" />
+</head>
+<body>
+  <div class="utility-bar">
+    <div class="container utility-bar__inner">
+      <span class="utility-bar__msg">STOCKTAKE SALE · UP TO 40% OFF WOMEN'S FASHION · 50% OFF QUILTS, PILLOWS &amp; MORE · UP TO 30% OFF MEN'S FASHION</span>
+    </div>
+  </div>
+  <header class="site-header">
+    <div class="container site-header__top">
+      <a href="#" class="logo" aria-label="MYER home">MYER</a>
+      <form class="search" role="search" onsubmit="return false;">
+        <input class="search__input" type="search" placeholder="Search for products and brands" />
+        <button class="search__btn" aria-label="Search">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </form>
+      <div class="header-icons">
+        <a href="#" class="header-icons__item">Sign In</a>
+        <a href="#" class="header-icons__item" aria-label="Wishlist">♡</a>
+        <a href="#" class="header-icons__item" aria-label="Bag">🛍</a>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <ul class="container main-nav__list">
+        <li class="main-nav__item main-nav__item--sale">Stocktake Sale</li>
+        <li class="main-nav__item">New In</li>
+        <li class="main-nav__item">Women</li>
+        <li class="main-nav__item">Men</li>
+        <li class="main-nav__item">Beauty</li>
+        <li class="main-nav__item">Home</li>
+        <li class="main-nav__item">Travel &amp; Tech</li>
+        <li class="main-nav__item">Kids</li>
+        <li class="main-nav__item">Toys</li>
+        <li class="main-nav__item">Brands</li>
+        <li class="main-nav__item">Gifts</li>
+        <li class="main-nav__item">MYER one</li>
+      </ul>
+    </nav>
+  </header>
+  <section class="hero">
+    <div class="hero__overlay">
+      <div class="container">
+        <p class="hero__eyebrow">STOCKTAKE SALE</p>
+        <h1 class="hero__title">Huge Savings Across the Store</h1>
+        <p class="hero__sub">Don't miss great deals on Fashion, Beauty, Homewares and More.</p>
+        <a href="#" class="hero__cta">Shop the Sale</a>
+      </div>
+    </div>
+  </section>
+  <section class="container promo-grid">
+    <a class="promo-tile" href="#">
+      <div class="promo-tile__img" style="background:linear-gradient(135deg,#d7c4b8,#b89a86)"></div>
+      <div class="promo-tile__body"><h3>Women's Fashion</h3><p>Up to 40% off</p></div>
+    </a>
+    <a class="promo-tile" href="#">
+      <div class="promo-tile__img" style="background:linear-gradient(135deg,#c2d2e0,#8fb0cc)"></div>
+      <div class="promo-tile__body"><h3>Quilts &amp; Pillows</h3><p>50% off</p></div>
+    </a>
+    <a class="promo-tile" href="#">
+      <div class="promo-tile__img" style="background:linear-gradient(135deg,#cdbfe0,#9d86c2)"></div>
+      <div class="promo-tile__body"><h3>Men's Fashion</h3><p>Up to 30% off</p></div>
+    </a>
+  </section>
+
+  <section class="container category-block">
+    <h2 class="section-title">Shop by Category</h2>
+    <div class="category-grid">
+      <a class="category-card" href="#"><div class="category-card__img" style="background:#e8e1d9"></div><span>Women</span></a>
+      <a class="category-card" href="#"><div class="category-card__img" style="background:#dde6ec"></div><span>Men</span></a>
+      <a class="category-card" href="#"><div class="category-card__img" style="background:#f0e3e3"></div><span>Beauty</span></a>
+      <a class="category-card" href="#"><div class="category-card__img" style="background:#e3ece3"></div><span>Home</span></a>
+      <a class="category-card" href="#"><div class="category-card__img" style="background:#e6e0ec"></div><span>Travel &amp; Tech</span></a>
+      <a class="category-card" href="#"><div class="category-card__img" style="background:#ece8dd"></div><span>Kids &amp; Toys</span></a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container site-footer__cols">
+      <div class="footer-col">
+        <h4>Customer Service</h4>
+        <a href="#">Contact Us</a><a href="#">Delivery</a><a href="#">Returns &amp; Refunds</a><a href="#">FAQs</a>
+      </div>
+      <div class="footer-col">
+        <h4>My Account</h4>
+        <a href="#">Sign In</a><a href="#">Order History</a><a href="#">MYER one</a><a href="#">Gift Cards</a>
+      </div>
+      <div class="footer-col">
+        <h4>About Myer</h4>
+        <a href="#">Our Story</a><a href="#">Careers</a><a href="#">Store Locator</a><a href="#">Press</a>
+      </div>
+      <div class="footer-col">
+        <h4>Stay Connected</h4>
+        <a href="#">Newsletter</a><a href="#">Instagram</a><a href="#">Facebook</a><a href="#">Pinterest</a>
+      </div>
+    </div>
+    <div class="site-footer__legal"><div class="container">© 2026 Myer Pty Ltd. Demo site for Salesforce Enhanced Messaging — not affiliated with Myer.</div></div>
+  </footer>
+  <!-- Salesforce Enhanced Messaging widget mounts here -->
+  <div id="myer-messaging-root"></div>
+  <script src="conversations.js"></script>
+  <script src="messaging.js"></script>
+</body>
+</html>

@@ -31,6 +31,16 @@
     </section>
   `;
 
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function safeColor(c) {
+    return /^#[0-9a-fA-F]{3,8}$/.test(String(c)) ? String(c) : "transparent";
+  }
+
   const launcher = document.getElementById("mw-launcher");
   const win = document.getElementById("mw-window");
 
@@ -55,8 +65,8 @@
     const wrap = document.createElement("div");
     wrap.className = "mw-row mw-row--" + role;
     const avatarText = role === "agent" ? (currentAgentName ? currentAgentName[0] : "S") : "M";
-    const avatar = role === "customer" ? "" : `<div class="mw-avatar mw-avatar--${role}">${avatarText}</div>`;
-    wrap.innerHTML = `${avatar}<div class="mw-bubble mw-bubble--${role}">${text}</div>`;
+    const avatar = role === "customer" ? "" : `<div class="mw-avatar mw-avatar--${role}">${esc(avatarText)}</div>`;
+    wrap.innerHTML = `${avatar}<div class="mw-bubble mw-bubble--${role}">${esc(text)}</div>`;
     messagesEl.appendChild(wrap);
     scrollDown();
     return wrap;
@@ -75,7 +85,7 @@
     el.className = "mw-row mw-row--" + currentSpeaker + " mw-typing-row";
     el.id = "mw-typing";
     const avatarText = currentSpeaker === "agent" ? (currentAgentName ? currentAgentName[0] : "S") : "M";
-    el.innerHTML = `<div class="mw-avatar mw-avatar--${currentSpeaker}">${avatarText}</div><div class="mw-bubble mw-bubble--${currentSpeaker} mw-typing"><span></span><span></span><span></span></div>`;
+    el.innerHTML = `<div class="mw-avatar mw-avatar--${currentSpeaker}">${esc(avatarText)}</div><div class="mw-bubble mw-bubble--${currentSpeaker} mw-typing"><span></span><span></span><span></span></div>`;
     messagesEl.appendChild(el);
     scrollDown();
   }
@@ -121,7 +131,7 @@
       if (msg.type === "text") {
         appendBubble({ role: currentSpeaker, text: msg.text });
       } else if (msg.type === "card") {
-        renderCard(msg.card); // full impl in Task 11
+        renderCard(msg.card);
       }
       await sleep(180);
     }
@@ -135,32 +145,32 @@
     if (card.kind === "order") {
       html = `<div class="mw-card">
         <div class="mw-card__order">
-          <div class="mw-card__thumb" style="background:${card.thumb}"></div>
-          <div><div class="mw-card__title">${card.item}</div>
-          <div class="mw-card__meta">Order ${card.id}</div>
-          <div class="mw-card__price">${card.price}</div></div>
+          <div class="mw-card__thumb" style="background:${safeColor(card.thumb)}"></div>
+          <div><div class="mw-card__title">${esc(card.item)}</div>
+          <div class="mw-card__meta">Order ${esc(card.id)}</div>
+          <div class="mw-card__price">${esc(card.price)}</div></div>
         </div></div>`;
     } else if (card.kind === "stock") {
       const rows = card.stores.map((s) => {
         const icon = s.status === "in" ? "✅" : s.status === "low" ? "⚠️" : "❌";
         const txt = s.status === "in" ? "In stock" : s.status === "low" ? "Low stock" : "Out of stock";
-        return `<div class="mw-stock__row"><span>${icon} ${s.name}</span><span class="mw-stock__txt">${txt}</span></div>`;
+        return `<div class="mw-stock__row"><span>${icon} ${esc(s.name)}</span><span class="mw-stock__txt">${txt}</span></div>`;
       }).join("");
       html = `<div class="mw-card">
-        <div class="mw-card__title">${card.item}</div>
-        <div class="mw-card__online">🟢 ${card.online}</div>
+        <div class="mw-card__title">${esc(card.item)}</div>
+        <div class="mw-card__online">🟢 ${esc(card.online)}</div>
         <div class="mw-stock">${rows}</div></div>`;
     } else if (card.kind === "tracking") {
-      const steps = card.steps.map((s) => `<div class="mw-track__step ${s.done ? "is-done" : ""}"><span class="mw-track__dot"></span>${s.label}</div>`).join("");
+      const steps = card.steps.map((s) => `<div class="mw-track__step ${s.done ? "is-done" : ""}"><span class="mw-track__dot"></span>${esc(s.label)}</div>`).join("");
       html = `<div class="mw-card">
         <div class="mw-card__meta">Estimated delivery</div>
-        <div class="mw-card__title">${card.eta}</div>
+        <div class="mw-card__title">${esc(card.eta)}</div>
         <div class="mw-track">${steps}</div></div>`;
     } else if (card.kind === "rewards") {
       html = `<div class="mw-card mw-card--rewards">
-        <div class="mw-card__meta">MYER one · ${card.tier}</div>
-        <div class="mw-rewards"><div><div class="mw-rewards__num">${card.points}</div><div class="mw-rewards__lbl">points</div></div>
-        <div><div class="mw-rewards__num">${card.credit}</div><div class="mw-rewards__lbl">credit</div></div></div></div>`;
+        <div class="mw-card__meta">MYER one · ${esc(card.tier)}</div>
+        <div class="mw-rewards"><div><div class="mw-rewards__num">${esc(card.points)}</div><div class="mw-rewards__lbl">points</div></div>
+        <div><div class="mw-rewards__num">${esc(card.credit)}</div><div class="mw-rewards__lbl">credit</div></div></div></div>`;
     }
     wrap.innerHTML = html;
     messagesEl.appendChild(wrap);

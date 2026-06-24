@@ -58,3 +58,20 @@ img { display: block; max-width: 100%; }
 .main-nav__item { cursor: pointer; white-space: nowrap; color: var(--text); }
 .main-nav__item:hover { color: var(--myer-navy); }
 .main-nav__item--sale { color: var(--myer-red); }
+
+/* Task 4: Hero banner */
+.hero {
+  background: linear-gradient(120deg, #001952 0%, #1d3a7a 100%);
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+}
+.hero__overlay { padding: 96px 0; background: rgba(0,0,0,0.12); }
+.hero__eyebrow { font-size: 14px; letter-spacing: 3px; font-weight: 700; opacity: 0.9; }
+.hero__title { font-size: 52px; font-weight: 800; margin: 12px 0; line-height: 1.05; }
+.hero__sub { font-size: 18px; max-width: 520px; opacity: 0.95; }
+.hero__cta {
+  display: inline-block; margin-top: 26px; background: #fff; color: var(--myer-navy);
+  font-weight: 700; padding: 14px 34px; border-radius: 2px; letter-spacing: 0.5px;
+}
+.hero__cta:hover { background: #f0f0f0; }

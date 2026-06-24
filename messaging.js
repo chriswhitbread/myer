@@ -3,6 +3,19 @@
   const C = window.MyerConversations;
   const root = document.getElementById("myer-messaging-root");
 
+  const demoState = { order: null, attempts: 0, captured: {}, deflectTotal: 0, deflectResolved: 0 };
+  let pendingInput = null; // { kind, onValue }
+  function awaitInput(kind, onValue) { pendingInput = { kind, onValue }; }
+
+  function fireEmail(msg) { if (window.MyerDemoUI && window.MyerDemoUI.email) window.MyerDemoUI.email(msg); }
+  function fireSms(msg) { if (window.MyerDemoUI && window.MyerDemoUI.sms) window.MyerDemoUI.sms(msg); }
+  function recordOutcome(kind) {
+    demoState.deflectTotal += 1;
+    if (kind === "resolved") demoState.deflectResolved += 1;
+    if (window.MyerDemoUI && window.MyerDemoUI.badge) window.MyerDemoUI.badge(kind);
+    if (window.MyerDemoUI && window.MyerDemoUI.counter) window.MyerDemoUI.counter(demoState.deflectResolved, demoState.deflectTotal);
+  }
+
   root.innerHTML = `
     <button class="mw-launcher" id="mw-launcher" aria-label="Open Myer Concierge — need help?" title="Need help?">
       <span class="mw-launcher__circle">
@@ -171,6 +184,15 @@
       }
       await sleep(180);
     }
+    if (typeof step.onEnter === "function") {
+      step.onEnter({ demoState, goToStep, appendBubble, awaitInput, fireEmail, fireSms, recordOutcome,
+        W: window.MyerWebchat, maskE: window.MyerWebchat.maskEmail, maskM: window.MyerWebchat.maskMobile,
+        renderQuickReplies, renderCrossSell });
+    }
+    if (typeof step.dynamicNext === "function") {
+      const nx = step.dynamicNext({ demoState, W: window.MyerWebchat });
+      if (nx) { goToStep(nx); return; }
+    }
     renderQuickReplies(step.quickReplies);
   }
 
@@ -213,6 +235,11 @@
     scrollDown();
   }
 
+  function renderCrossSell(items) {
+    // Full impl in Task 6; stub renders nothing harmful if called early.
+    if (window.MyerDemoUI && window.MyerDemoUI.crossSell) window.MyerDemoUI.crossSell(items);
+  }
+
   const composer = document.getElementById("mw-composer");
   const input = document.getElementById("mw-input");
   composer.addEventListener("submit", (e) => {
@@ -222,6 +249,11 @@
     input.value = "";
     clearQuickReplies();
     appendBubble({ role: "customer", text });
+    if (pendingInput) {
+      const handler = pendingInput; pendingInput = null;
+      handler.onValue(text);
+      return;
+    }
     const stepId = C.matchKeyword(text);
     if (stepId) {
       goToStep(stepId);
@@ -244,5 +276,5 @@
 
   function resetSpeaker() { currentSpeaker = "bot"; currentAgentName = null; }
 
-  window.MyerWidget = { open, close, toggle, reset, goToStep, resetSpeaker, _root: root, _C: C };
+  window.MyerWidget = { open, close, toggle, reset, goToStep, resetSpeaker, _root: root, _C: C, demoState, awaitInput, fireEmail, fireSms, recordOutcome };
 })();

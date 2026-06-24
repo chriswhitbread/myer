@@ -4,8 +4,10 @@
   const root = document.getElementById("myer-messaging-root");
 
   root.innerHTML = `
-    <button class="mw-launcher" id="mw-launcher" aria-label="Open Myer Concierge">
-      <span class="mw-launcher__icon">💬</span>
+    <button class="mw-launcher" id="mw-launcher" aria-label="Open Myer Concierge — need help?" title="Need help?">
+      <span class="mw-launcher__circle">
+        <svg class="mw-launcher__icon" width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g opacity="0.7"><path opacity="0.9" d="M26.25 11.3148H24.375V16.0023C24.375 18.5908 22.2759 20.6898 19.6875 20.6898H11.25V22.5648C11.25 24.6358 12.9291 26.3148 15 26.3148H20.625L24.7125 29.7179C25.11 30.0489 25.7016 29.9954 26.0325 29.5979C26.1731 29.4292 26.25 29.2164 26.25 28.9961V26.3148C28.3209 26.3148 30 24.6358 30 22.5648V15.0648C30 12.9939 28.3209 11.3148 26.25 11.3148Z" fill="white"/></g><path d="M18.75 0.0648193H3.75C1.67906 0.0648193 0 1.74388 0 3.81482V15.0648C0 17.1358 1.67906 18.8148 3.75 18.8148V22.4054C3.75 22.9229 4.17 23.3429 4.6875 23.3429C4.91063 23.3429 5.12719 23.2633 5.29688 23.1179L10.3125 18.8148H18.75C20.8209 18.8148 22.5 17.1358 22.5 15.0648V3.81482C22.5 1.74388 20.8209 0.0648193 18.75 0.0648193Z" fill="white"/></svg>
+      </span>
       <span class="mw-launcher__label">Need help?</span>
     </button>
     <section class="mw-window" id="mw-window" aria-hidden="true">

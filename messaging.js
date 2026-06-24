@@ -163,6 +163,18 @@
     messagesEl.querySelectorAll(".mw-quickreplies").forEach((n) => n.remove());
   }
 
+  // Shared chip-click behaviour. A quick reply may carry an optional `order`
+  // (an order number) — picking it sets the active order before navigating,
+  // which lets the opening menu offer demo orders as clickable chips.
+  function handleChip(qr) {
+    clearQuickReplies();
+    if (qr.label !== "(continue)") appendBubble({ role: "customer", text: qr.label });
+    if (qr.order && window.MyerWebchat) {
+      demoState.order = window.MyerWebchat.lookupOrder(qr.order) || null;
+    }
+    goToStep(qr.next);
+  }
+
   function renderQuickReplies(replies) {
     if (!replies || !replies.length) return;
     const wrap = document.createElement("div");
@@ -171,11 +183,7 @@
       const btn = document.createElement("button");
       btn.className = "mw-chip";
       btn.textContent = qr.label;
-      btn.addEventListener("click", () => {
-        clearQuickReplies();
-        if (qr.label !== "(continue)") appendBubble({ role: "customer", text: qr.label });
-        goToStep(qr.next);
-      });
+      btn.addEventListener("click", () => handleChip(qr));
       wrap.appendChild(btn);
     });
     messagesEl.appendChild(wrap);
@@ -202,12 +210,7 @@
       const btn = document.createElement("button");
       btn.className = "mw-chip mw-chip--intro";
       btn.textContent = qr.label;
-      btn.addEventListener("click", () => {
-        clearQuickReplies();
-        row.remove();
-        if (qr.label !== "(continue)") appendBubble({ role: "customer", text: qr.label });
-        goToStep(qr.next);
-      });
+      btn.addEventListener("click", () => { row.remove(); handleChip(qr); });
       card.appendChild(btn);
     });
     row.innerHTML = `<div class="mw-avatar mw-avatar--bot">M</div>`;

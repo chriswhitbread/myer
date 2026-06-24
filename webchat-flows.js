@@ -5,17 +5,39 @@ window.MyerWebchatFlows = (function () {
     wc_welcome: {
       intro: true,
       messages: [
-        { type: "text", text: "Hi! I can track an order or help with a return. What's your order number?" }
+        { type: "text", text: "Hi, welcome to Myer! 👋 How can I help today?" }
       ],
       onEnter: (ctx) => {
         ctx.demoState.order = null; ctx.demoState.attempts = 0; ctx.demoState.captured = {};
-        ctx.awaitInput("order", (val) => {
-          const order = ctx.W.lookupOrder(val);
-          if (!order) { ctx.goToStep("sc_A4"); return; } // ghost order
-          ctx.demoState.order = order;
-          ctx.goToStep("wc_verify");
-        });
-      }
+      },
+      quickReplies: [
+        { label: "Track my order", next: "wc_pick_order" },
+        { label: "Return an item", next: "wc_pick_order" },
+        { label: "Something arrived damaged", next: "wc_pick_order" },
+        { label: "Ask a question", next: "wc_knowledge" }
+      ]
+    },
+
+    /* ---- Order picker (chip-driven; sets the active order, then verifies) ---- */
+    wc_pick_order: {
+      messages: [{ type: "text", text: "Sure — which order is it? (Pick one for the demo.)" }],
+      quickReplies: [
+        { label: "Split delivery", order: "M1000001", next: "wc_verify" },
+        { label: "In transit", order: "M1000002", next: "wc_verify" },
+        { label: "Says delivered, not received", order: "M1000003", next: "wc_verify" },
+        { label: "Authority to leave", order: "M1000005", next: "wc_verify" },
+        { label: "Faulty item", order: "M2000001", next: "wc_verify" },
+        { label: "Changed my mind", order: "M2000002", next: "wc_verify" },
+        { label: "Wrong size", order: "M2000003", next: "wc_verify" },
+        { label: "Arrived damaged", order: "M2000004", next: "wc_verify" },
+        { label: "Marketplace item", order: "M2000005", next: "wc_verify" },
+        { label: "An order I can't find", order: "M9999999", next: "wc_ghost" }
+      ]
+    },
+    wc_ghost: {
+      messages: [],
+      onEnter: (ctx) => { ctx.demoState.order = null; },
+      dynamicNext: () => "sc_A4"
     },
     wc_verify: {
       messages: [
@@ -23,8 +45,9 @@ window.MyerWebchatFlows = (function () {
         { type: "note", text: "3-point verification — fit for order, returns and tracking. Account changes would step up to MFA." }
       ],
       onEnter: (ctx) => {
+        const o = ctx.demoState.order;
+        if (!o) { ctx.goToStep("sc_A4"); return; }
         ctx.awaitInput("verify", (val) => {
-          const o = ctx.demoState.order;
           const hay = val.toLowerCase().replace(/\s+/g, "");
           const emailOk = hay.includes(o.email.toLowerCase());
           const mobileOk = hay.includes(o.mobile.replace(/\s+/g, ""));
@@ -37,7 +60,64 @@ window.MyerWebchatFlows = (function () {
             else { ctx.goToStep("wc_verify_retry"); }
           }
         });
+      },
+      quickReplies: [{ label: "Use the order's details", next: "wc_verify_auto" }]
+    },
+    wc_verify_auto: {
+      messages: [],
+      onEnter: (ctx) => {
+        const o = ctx.demoState.order;
+        if (!o) { ctx.goToStep("sc_A4"); return; }
+        ctx.appendBubble({ role: "bot", text: "Perfect, that checks out. I've got your order up. ✅" });
+        ctx.goToStep("sc_" + o.scenario);
       }
+    },
+
+    /* ---- Knowledge / FAQ (no order needed) ---- */
+    wc_knowledge: {
+      messages: [{ type: "text", text: "Happy to help. What would you like to know?" }],
+      quickReplies: [
+        { label: "Delivery times & cost", next: "wc_kn_delivery" },
+        { label: "Returns policy", next: "wc_kn_returns" },
+        { label: "Store locations & hours", next: "wc_kn_stores" },
+        { label: "MYER one rewards", next: "wc_kn_myerone" },
+        { label: "Gift cards", next: "wc_kn_giftcards" }
+      ]
+    },
+    wc_kn_delivery: {
+      messages: [
+        { type: "text", text: "Standard delivery is 3–7 business days, and it's free on orders over $99 (a $10 flat rate under that). Express is 1–3 business days. Free Click & Collect is usually ready within 2 hours at your chosen store." }
+      ],
+      onEnter: (ctx) => ctx.recordOutcome("resolved"),
+      quickReplies: [{ label: "Ask something else", next: "wc_knowledge" }, { label: "That's all, thanks", next: "wc_bye" }]
+    },
+    wc_kn_returns: {
+      messages: [
+        { type: "text", text: "You've got 30 days to return most items for a refund or exchange — they just need to be unworn with tags and proof of purchase. Faulty or damaged items can be returned any time, and we cover the postage. Beauty, earrings and a few other items have hygiene exclusions." }
+      ],
+      onEnter: (ctx) => ctx.recordOutcome("resolved"),
+      quickReplies: [{ label: "Ask something else", next: "wc_knowledge" }, { label: "Start a return", next: "wc_pick_order" }]
+    },
+    wc_kn_stores: {
+      messages: [
+        { type: "text", text: "We've got over 50 stores across Australia. Most are open 9am–6pm weekdays, 9am–5pm weekends, with extended hours late-night and during sale events. Want me to find your nearest store? Just share a suburb or postcode." }
+      ],
+      onEnter: (ctx) => ctx.recordOutcome("resolved"),
+      quickReplies: [{ label: "Ask something else", next: "wc_knowledge" }, { label: "That's all, thanks", next: "wc_bye" }]
+    },
+    wc_kn_myerone: {
+      messages: [
+        { type: "text", text: "MYER one is our free rewards program — you earn 2 Credits per $1 on eligible purchases, and every 2,000 Credits becomes a $10 Rewards Card. Members also get bonus-Credit events, birthday treats and exclusive offers." }
+      ],
+      onEnter: (ctx) => ctx.recordOutcome("resolved"),
+      quickReplies: [{ label: "Ask something else", next: "wc_knowledge" }, { label: "That's all, thanks", next: "wc_bye" }]
+    },
+    wc_kn_giftcards: {
+      messages: [
+        { type: "text", text: "Myer gift cards work in-store and online, are valid for 3 years from purchase, and can be topped up from $20 to $1,000. Lost a digital one? I can resend it to the email on the order." }
+      ],
+      onEnter: (ctx) => ctx.recordOutcome("resolved"),
+      quickReplies: [{ label: "Ask something else", next: "wc_knowledge" }, { label: "That's all, thanks", next: "wc_bye" }]
     },
     wc_verify_retry: {
       messages: [{ type: "text", text: "Hmm, those didn't match. Could you try the email and mobile on the order once more?" }],

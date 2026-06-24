@@ -70,6 +70,19 @@
 }
 .mw-chip:hover { background: #f0f0f0; border-color: #bbb; }
 
+/* ---- Welcome intro card (greeting + options grouped, like real Myer Concierge) ---- */
+.mw-intro-row { align-items: flex-start; }
+.mw-intro-card {
+  background: #fff; border: 1px solid #e3e3e3; border-radius: 12px;
+  padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  display: flex; flex-direction: column; gap: 10px; max-width: 300px;
+}
+.mw-intro-card__text { font-size: 14px; line-height: 1.45; color: #1a1a1a; margin: 0; }
+.mw-chip--intro {
+  width: 100%; text-align: center; border-radius: 22px; padding: 11px 14px; font-size: 13px;
+}
+.mw-chip--intro:first-of-type { margin-top: 4px; }
+
 /* ---- Typing indicator ---- */
 .mw-typing { display: flex; gap: 4px; align-items: center; }
 .mw-typing span { width: 7px; height: 7px; background: #b0b0b8; border-radius: 50%; animation: mw-blink 1.2s infinite both; }

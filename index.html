@@ -13,49 +13,223 @@
 </head>
 <body>
 
-  <!-- Announcement bar -->
+  <!-- Announcement bar (scrolls away; header below is sticky) -->
   <div class="announcement-bar">
     <div class="announcement-bar__inner">
       UP TO 40% OFF WOMEN'S FASHION &nbsp;·&nbsp; 50% OFF QUILTS, PILLOWS &amp; MORE &nbsp;·&nbsp; UP TO 30% OFF MEN'S FASHION &nbsp;·&nbsp; 40% OFF KIDS' FASHION
     </div>
   </div>
 
-  <!-- Site header -->
-  <header class="site-header">
-    <div class="container site-header__top">
-      <!-- Utility links (top-right above search on the real site — rendered left of search here for flow) -->
-      <a href="#" class="logo" aria-label="MYER home">
-        <svg fill="none" height="32" viewBox="0 0 1136 180" width="168" xmlns="http://www.w3.org/2000/svg" aria-label="MYER" role="img"><g fill="#1f1f1f"><path d="M181.345 0L140.017 80.9964L98.6859 0H-0.000244141V179.053H24.3022V61.8109L84.2637 179.053H137.379L189.127 61.8109V179.053H279.344V0H181.345ZM1135.92 51.2313C1135.59 15.7004 1104.63 0 1066.02 0H876.729V179.049H970.706V109.736L1026.47 179.049H1135.92L1074.16 102.152C1108.77 99.6536 1136.2 81.8085 1135.92 51.2313ZM1009.98 65.4786H970.597V37.0967H1009.98C1021.99 37.0967 1031.62 41.4443 1031.73 51.2896C1031.82 60.4433 1021.99 65.4786 1009.98 65.4786ZM851.642 0V37.0928H706.93V70.9802H836.081V108.073H706.93V141.964H851.642V179.057H613.062V0H851.642ZM527.489 0L475.997 68.4819L418.037 0H299.431L398.35 117.001V179.053H501.609V121.353L592.975 0H527.489Z" fill="#1F1F1F"></path></g></svg>
-      </a>
+  <!-- Sticky header wrapper (logo + search + nav only) -->
+  <div class="sticky-header">
 
-      <form class="search" role="search" onsubmit="return false;">
-        <svg class="search__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#767676" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="search__input" type="search" placeholder="Search for products and brands" />
-      </form>
+    <!-- Site header top row -->
+    <header class="site-header">
+      <div class="container site-header__top">
+        <a href="#" class="logo" aria-label="MYER home">
+          <svg fill="none" height="32" viewBox="0 0 1136 180" width="168" xmlns="http://www.w3.org/2000/svg" aria-label="MYER" role="img"><g fill="#1f1f1f"><path d="M181.345 0L140.017 80.9964L98.6859 0H-0.000244141V179.053H24.3022V61.8109L84.2637 179.053H137.379L189.127 61.8109V179.053H279.344V0H181.345ZM1135.92 51.2313C1135.59 15.7004 1104.63 0 1066.02 0H876.729V179.049H970.706V109.736L1026.47 179.049H1135.92L1074.16 102.152C1108.77 99.6536 1136.2 81.8085 1135.92 51.2313ZM1009.98 65.4786H970.597V37.0967H1009.98C1021.99 37.0967 1031.62 41.4443 1031.73 51.2896C1031.82 60.4433 1021.99 65.4786 1009.98 65.4786ZM851.642 0V37.0928H706.93V70.9802H836.081V108.073H706.93V141.964H851.642V179.057H613.062V0H851.642ZM527.489 0L475.997 68.4819L418.037 0H299.431L398.35 117.001V179.053H501.609V121.353L592.975 0H527.489Z" fill="#1F1F1F"></path></g></svg>
+        </a>
 
-      <div class="header-utils">
-        <a href="#" class="header-utils__item">Find a store</a>
-        <a href="#" class="header-utils__item">Sign In / Account</a>
-        <a href="#" class="header-utils__item" aria-label="Wishlist">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          <span>Wishlist</span>
-        </a>
-        <a href="#" class="header-utils__item" aria-label="Bag">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          <span>Bag</span>
-        </a>
+        <form class="search" role="search" onsubmit="return false;">
+          <svg class="search__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#767676" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search__input" type="search" placeholder="Search for a product or brand" />
+        </form>
+
+        <div class="header-utils">
+          <a href="#" class="header-utils__item">Find a store</a>
+          <a href="#" class="header-utils__item">Sign In / Account</a>
+          <a href="#" class="header-utils__item" aria-label="Wishlist">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span>Wishlist</span>
+          </a>
+          <a href="#" class="header-utils__item" aria-label="Bag">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span>Bag</span>
+          </a>
+        </div>
       </div>
-    </div>
+    </header>
 
-    <!-- Main nav -->
+    <!-- Main nav with mega-menus -->
     <nav class="main-nav" aria-label="Main navigation">
       <ul class="container main-nav__list">
+
         <li class="main-nav__item main-nav__item--sale"><a href="#">Stocktake Sale</a></li>
         <li class="main-nav__item"><a href="#">New In</a></li>
-        <li class="main-nav__item"><a href="#">Women</a></li>
-        <li class="main-nav__item"><a href="#">Men</a></li>
-        <li class="main-nav__item"><a href="#">Beauty</a></li>
-        <li class="main-nav__item"><a href="#">Home</a></li>
+
+        <!-- Women mega-menu -->
+        <li class="main-nav__item main-nav__item--mega">
+          <a href="#">Women</a>
+          <div class="mega-menu" role="region" aria-label="Women categories">
+            <div class="container mega-menu__inner">
+              <div class="mega-menu__cols">
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">Clothing</p>
+                  <a href="#">Dresses</a>
+                  <a href="#">Tops</a>
+                  <a href="#">Knitwear</a>
+                  <a href="#">Coats &amp; Jackets</a>
+                  <a href="#">Activewear</a>
+                  <a href="#">Jeans &amp; Pants</a>
+                  <a href="#">Skirts</a>
+                </div>
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">Shoes &amp; Accessories</p>
+                  <a href="#">Shoes</a>
+                  <a href="#">Boots</a>
+                  <a href="#">Bags</a>
+                  <a href="#">Jewellery</a>
+                  <a href="#">Scarves &amp; Hats</a>
+                  <a href="#">Sunglasses</a>
+                </div>
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">More</p>
+                  <a href="#">Lingerie &amp; Sleepwear</a>
+                  <a href="#">Swimwear</a>
+                  <a href="#">Maternity</a>
+                  <a href="#">Plus Size</a>
+                  <a href="#">Brands</a>
+                  <a href="#">Gift Cards</a>
+                </div>
+              </div>
+              <div class="mega-menu__promo">
+                <a href="#" class="mega-menu__promo-link">
+                  <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/a0eb/a0eb6b90-3379-4d57-afab-c22ea3e523f7.jpg?output-format=webp" alt="Up to 40% off Women's" loading="lazy" />
+                  <span class="mega-menu__promo-caption">Up to 40% off Women's</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- Men mega-menu -->
+        <li class="main-nav__item main-nav__item--mega">
+          <a href="#">Men</a>
+          <div class="mega-menu" role="region" aria-label="Men categories">
+            <div class="container mega-menu__inner">
+              <div class="mega-menu__cols">
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">Clothing</p>
+                  <a href="#">Shirts</a>
+                  <a href="#">T-Shirts &amp; Polos</a>
+                  <a href="#">Pants &amp; Chinos</a>
+                  <a href="#">Suits &amp; Tailoring</a>
+                  <a href="#">Activewear</a>
+                  <a href="#">Jeans</a>
+                  <a href="#">Shorts</a>
+                </div>
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">Shoes &amp; Accessories</p>
+                  <a href="#">Shoes</a>
+                  <a href="#">Boots</a>
+                  <a href="#">Accessories</a>
+                  <a href="#">Ties &amp; Cufflinks</a>
+                  <a href="#">Bags &amp; Wallets</a>
+                  <a href="#">Hats &amp; Caps</a>
+                </div>
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">More</p>
+                  <a href="#">Grooming</a>
+                  <a href="#">Underwear &amp; Socks</a>
+                  <a href="#">Swimwear</a>
+                  <a href="#">Big &amp; Tall</a>
+                  <a href="#">Brands</a>
+                  <a href="#">Gift Cards</a>
+                </div>
+              </div>
+              <div class="mega-menu__promo">
+                <a href="#" class="mega-menu__promo-link">
+                  <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/8b7e/8b7e8e41-304f-4754-bb37-8055e6d09095.jpg?output-format=webp" alt="Up to 30% off Men's" loading="lazy" />
+                  <span class="mega-menu__promo-caption">Up to 30% off Men's</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- Beauty mega-menu -->
+        <li class="main-nav__item main-nav__item--mega">
+          <a href="#">Beauty</a>
+          <div class="mega-menu" role="region" aria-label="Beauty categories">
+            <div class="container mega-menu__inner">
+              <div class="mega-menu__cols">
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">Skincare &amp; Makeup</p>
+                  <a href="#">Skincare</a>
+                  <a href="#">Makeup</a>
+                  <a href="#">Foundation &amp; Concealer</a>
+                  <a href="#">Lips</a>
+                  <a href="#">Eyes</a>
+                  <a href="#">Nails</a>
+                </div>
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">Fragrance &amp; Hair</p>
+                  <a href="#">Fragrance</a>
+                  <a href="#">Hair Care</a>
+                  <a href="#">Hair Styling</a>
+                  <a href="#">Tools &amp; Brushes</a>
+                  <a href="#">Men's Grooming</a>
+                </div>
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">More</p>
+                  <a href="#">Gift Sets</a>
+                  <a href="#">Body &amp; Bath</a>
+                  <a href="#">Suncare</a>
+                  <a href="#">Brands</a>
+                  <a href="#">Offers</a>
+                </div>
+              </div>
+              <div class="mega-menu__promo">
+                <a href="#" class="mega-menu__promo-link">
+                  <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/c743/c7436019-9f7f-405c-915e-a6c6b9a43b36.jpg?output-format=webp" alt="Beauty offers" loading="lazy" />
+                  <span class="mega-menu__promo-caption">Beauty offers</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- Home mega-menu -->
+        <li class="main-nav__item main-nav__item--mega">
+          <a href="#">Home</a>
+          <div class="mega-menu" role="region" aria-label="Home categories">
+            <div class="container mega-menu__inner">
+              <div class="mega-menu__cols">
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">Bedroom &amp; Bath</p>
+                  <a href="#">Bedding &amp; Quilts</a>
+                  <a href="#">Manchester</a>
+                  <a href="#">Pillows</a>
+                  <a href="#">Bathroom</a>
+                  <a href="#">Towels</a>
+                </div>
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">Kitchen &amp; Dining</p>
+                  <a href="#">Kitchen</a>
+                  <a href="#">Cookware</a>
+                  <a href="#">Dining &amp; Glassware</a>
+                  <a href="#">Small Appliances</a>
+                  <a href="#">Bakeware</a>
+                </div>
+                <div class="mega-menu__col">
+                  <p class="mega-menu__col-heading">Living &amp; Decor</p>
+                  <a href="#">Furniture</a>
+                  <a href="#">Home Decor</a>
+                  <a href="#">Lighting</a>
+                  <a href="#">Storage</a>
+                  <a href="#">Brands</a>
+                </div>
+              </div>
+              <div class="mega-menu__promo">
+                <a href="#" class="mega-menu__promo-link">
+                  <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/f832/f832b45c-6af5-4dc6-9c1c-43cccf8a9452.jpg?output-format=webp" alt="50% off Quilts &amp; Pillows" loading="lazy" />
+                  <span class="mega-menu__promo-caption">50% off Quilts &amp; Pillows</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>
+
         <li class="main-nav__item"><a href="#">Travel &amp; Tech</a></li>
         <li class="main-nav__item"><a href="#">Kids</a></li>
         <li class="main-nav__item"><a href="#">Toys</a></li>
@@ -64,7 +238,8 @@
         <li class="main-nav__item"><a href="#">MYER one</a></li>
       </ul>
     </nav>
-  </header>
+
+  </div><!-- /sticky-header -->
 
   <main>
 
@@ -84,63 +259,128 @@
       </a>
     </section>
 
-    <!-- Top Sale Picks for You -->
+    <!-- Top Sale Picks for You — PDP-card style product tiles -->
     <section class="container section-block">
       <h2 class="section-title">Top Sale Picks for You</h2>
       <div class="product-row">
 
         <a class="product-tile" href="#">
           <div class="product-tile__img-wrap">
-            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/3241/3241e5d5-1915-4ea1-9177-0a5b59181a06.jpg?output-format=webp" alt="Women's fashion sale pick" loading="lazy" />
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/3241/3241e5d5-1915-4ea1-9177-0a5b59181a06.jpg?output-format=webp" alt="Country Road Wool Blend Coat" loading="lazy" />
           </div>
           <div class="product-tile__info">
-            <p class="product-tile__brand">Women's Fashion</p>
-            <p class="product-tile__name">Sale Styles</p>
-            <p class="product-tile__price"><span class="price--sale">From $29.99</span></p>
+            <p class="product-tile__brand">Country Road</p>
+            <p class="product-tile__name">Wool Blend Relaxed Coat</p>
+            <p class="product-tile__price">
+              <span class="price--was">$299.00</span>
+              <span class="price--now">$179.00</span>
+            </p>
+            <p class="product-tile__stars">★★★★☆ <span>(42)</span></p>
           </div>
         </a>
 
         <a class="product-tile" href="#">
           <div class="product-tile__img-wrap">
-            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/6618/6618ba15-8068-4b0b-8681-31ca7e11cb28.jpg?output-format=webp" alt="Men's fashion sale pick" loading="lazy" />
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/6618/6618ba15-8068-4b0b-8681-31ca7e11cb28.jpg?output-format=webp" alt="Tommy Hilfiger Classic Oxford Shirt" loading="lazy" />
           </div>
           <div class="product-tile__info">
-            <p class="product-tile__brand">Men's Fashion</p>
-            <p class="product-tile__name">Sale Styles</p>
-            <p class="product-tile__price"><span class="price--sale">From $34.99</span></p>
+            <p class="product-tile__brand">Tommy Hilfiger</p>
+            <p class="product-tile__name">Classic Oxford Slim Fit Shirt</p>
+            <p class="product-tile__price">
+              <span class="price--was">$149.00</span>
+              <span class="price--now">$89.00</span>
+            </p>
+            <p class="product-tile__stars">★★★★★ <span>(87)</span></p>
           </div>
         </a>
 
         <a class="product-tile" href="#">
           <div class="product-tile__img-wrap">
-            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/c743/c7436019-9f7f-405c-915e-a6c6b9a43b36.jpg?output-format=webp" alt="Beauty sale pick" loading="lazy" />
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/c743/c7436019-9f7f-405c-915e-a6c6b9a43b36.jpg?output-format=webp" alt="Seed Heritage Linen Midi Dress" loading="lazy" />
           </div>
           <div class="product-tile__info">
-            <p class="product-tile__brand">Beauty</p>
-            <p class="product-tile__name">Top Picks</p>
-            <p class="product-tile__price"><span class="price--sale">From $19.99</span></p>
+            <p class="product-tile__brand">Seed Heritage</p>
+            <p class="product-tile__name">Linen Blend Midi Wrap Dress</p>
+            <p class="product-tile__price">
+              <span class="price--was">$199.00</span>
+              <span class="price--now">$119.00</span>
+            </p>
+            <p class="product-tile__stars">★★★★☆ <span>(31)</span></p>
           </div>
         </a>
 
         <a class="product-tile" href="#">
           <div class="product-tile__img-wrap">
-            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/f832/f832b45c-6af5-4dc6-9c1c-43cccf8a9452.jpg?output-format=webp" alt="Home sale pick" loading="lazy" />
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/f832/f832b45c-6af5-4dc6-9c1c-43cccf8a9452.jpg?output-format=webp" alt="Polo Ralph Lauren Pima Cotton Knit" loading="lazy" />
           </div>
           <div class="product-tile__info">
-            <p class="product-tile__brand">Home</p>
-            <p class="product-tile__name">Sale Picks</p>
-            <p class="product-tile__price"><span class="price--sale">From $24.99</span></p>
+            <p class="product-tile__brand">Polo Ralph Lauren</p>
+            <p class="product-tile__name">Pima Cotton Cable Knit Sweater</p>
+            <p class="product-tile__price">
+              <span class="price--was">$249.00</span>
+              <span class="price--now">$149.00</span>
+            </p>
+            <p class="product-tile__stars">★★★★★ <span>(63)</span></p>
           </div>
         </a>
 
         <a class="product-tile" href="#">
           <div class="product-tile__img-wrap">
-            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/1e64/1e64bacd-2258-4db6-bd8e-5ba8fe677a70.jpg?output-format=webp" alt="Kids sale pick" loading="lazy" />
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/1e64/1e64bacd-2258-4db6-bd8e-5ba8fe677a70.jpg?output-format=webp" alt="Sass & Bide High Waist Jeans" loading="lazy" />
           </div>
           <div class="product-tile__info">
-            <p class="product-tile__brand">Kids</p>
-            <p class="product-tile__name">Sale Styles</p>
-            <p class="product-tile__price"><span class="price--sale">From $14.99</span></p>
+            <p class="product-tile__brand">Sass &amp; Bide</p>
+            <p class="product-tile__name">High Waist Straight Leg Jeans</p>
+            <p class="product-tile__price">
+              <span class="price--was">$279.00</span>
+              <span class="price--now">$159.00</span>
+            </p>
+            <p class="product-tile__stars">★★★★☆ <span>(19)</span></p>
+          </div>
+        </a>
+
+        <a class="product-tile" href="#">
+          <div class="product-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/0c7c/0c7c53e2-c2ad-4ebe-a874-e74250dd9893.jpg?output-format=webp" alt="Trenery Merino Longline Cardigan" loading="lazy" />
+          </div>
+          <div class="product-tile__info">
+            <p class="product-tile__brand">Trenery</p>
+            <p class="product-tile__name">Merino Wool Longline Cardigan</p>
+            <p class="product-tile__price">
+              <span class="price--was">$229.00</span>
+              <span class="price--now">$129.00</span>
+            </p>
+            <p class="product-tile__stars">★★★★★ <span>(55)</span></p>
+          </div>
+        </a>
+
+        <a class="product-tile" href="#">
+          <div class="product-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/8525/85259afa-98cd-41f5-bfd5-25846ca8e3da.jpg?output-format=webp" alt="Calvin Klein Tailored Blazer" loading="lazy" />
+          </div>
+          <div class="product-tile__info">
+            <p class="product-tile__brand">Calvin Klein</p>
+            <p class="product-tile__name">Tailored Double-Button Blazer</p>
+            <p class="product-tile__price">
+              <span class="price--was">$349.00</span>
+              <span class="price--now">$199.00</span>
+            </p>
+            <p class="product-tile__stars">★★★★☆ <span>(27)</span></p>
+          </div>
+        </a>
+
+        <a class="product-tile" href="#">
+          <div class="product-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/c2b4/c2b4d495-d2b5-43f6-a2d8-f96f5850a937.jpg?output-format=webp" alt="Witchery Satin Slip Dress" loading="lazy" />
+          </div>
+          <div class="product-tile__info">
+            <p class="product-tile__brand">Witchery</p>
+            <p class="product-tile__name">Satin Midi Slip Dress</p>
+            <p class="product-tile__price">
+              <span class="price--was">$179.00</span>
+              <span class="price--now">$99.00</span>
+            </p>
+            <p class="product-tile__stars">★★★★★ <span>(38)</span></p>
           </div>
         </a>
 
@@ -156,7 +396,7 @@
             <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/a0eb/a0eb6b90-3379-4d57-afab-c22ea3e523f7.jpg?output-format=webp" alt="Women's fashion up to 40% off" loading="lazy" />
           </div>
           <div class="promo-tile__caption">
-            <p class="promo-tile__off">UP TO 40% OFF</p>
+            <p class="promo-tile__off">UP TO <strong>40%</strong> OFF</p>
             <p class="promo-tile__label">Women's Fashion</p>
           </div>
         </a>
@@ -166,7 +406,7 @@
             <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/8b7e/8b7e8e41-304f-4754-bb37-8055e6d09095.jpg?output-format=webp" alt="Men's fashion up to 30% off" loading="lazy" />
           </div>
           <div class="promo-tile__caption">
-            <p class="promo-tile__off">UP TO 30% OFF</p>
+            <p class="promo-tile__off">UP TO <strong>30%</strong> OFF</p>
             <p class="promo-tile__label">Men's Fashion</p>
           </div>
         </a>
@@ -209,6 +449,46 @@
           </div>
           <p class="deal-tile__off">UP TO 45% OFF</p>
           <p class="deal-tile__label">Jackets &amp; Coats</p>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- Unmissable Savings on Home & Lifestyle -->
+    <section class="container section-block">
+      <h2 class="section-title">Unmissable Savings on Home &amp; Lifestyle</h2>
+      <div class="deals-grid">
+
+        <a class="deal-tile" href="#">
+          <div class="deal-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/f832/f832b45c-6af5-4dc6-9c1c-43cccf8a9452.jpg?output-format=webp" alt="Bedding &amp; Quilts — 50% off" loading="lazy" />
+          </div>
+          <p class="deal-tile__off">50% OFF</p>
+          <p class="deal-tile__label">Quilts &amp; Pillows</p>
+        </a>
+
+        <a class="deal-tile" href="#">
+          <div class="deal-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/1e64/1e64bacd-2258-4db6-bd8e-5ba8fe677a70.jpg?output-format=webp" alt="Cookware — up to 40% off" loading="lazy" />
+          </div>
+          <p class="deal-tile__off">UP TO 40% OFF</p>
+          <p class="deal-tile__label">Cookware</p>
+        </a>
+
+        <a class="deal-tile" href="#">
+          <div class="deal-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/3241/3241e5d5-1915-4ea1-9177-0a5b59181a06.jpg?output-format=webp" alt="Home Decor — from $15" loading="lazy" />
+          </div>
+          <p class="deal-tile__off">FROM $15</p>
+          <p class="deal-tile__label">Home Decor</p>
+        </a>
+
+        <a class="deal-tile" href="#">
+          <div class="deal-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/6618/6618ba15-8068-4b0b-8681-31ca7e11cb28.jpg?output-format=webp" alt="Kitchen — $15 &amp; under" loading="lazy" />
+          </div>
+          <p class="deal-tile__off">$15 &amp; UNDER</p>
+          <p class="deal-tile__label">Kitchen</p>
         </a>
 
       </div>

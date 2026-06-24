@@ -128,9 +128,43 @@
     renderQuickReplies(step.quickReplies);
   }
 
-  // Stub — replaced in Task 11.
   function renderCard(card) {
-    appendBubble({ role: currentSpeaker, text: "[" + card.kind + " card]" });
+    const wrap = document.createElement("div");
+    wrap.className = "mw-row mw-row--" + currentSpeaker;
+    let html = "";
+    if (card.kind === "order") {
+      html = `<div class="mw-card">
+        <div class="mw-card__order">
+          <div class="mw-card__thumb" style="background:${card.thumb}"></div>
+          <div><div class="mw-card__title">${card.item}</div>
+          <div class="mw-card__meta">Order ${card.id}</div>
+          <div class="mw-card__price">${card.price}</div></div>
+        </div></div>`;
+    } else if (card.kind === "stock") {
+      const rows = card.stores.map((s) => {
+        const icon = s.status === "in" ? "✅" : s.status === "low" ? "⚠️" : "❌";
+        const txt = s.status === "in" ? "In stock" : s.status === "low" ? "Low stock" : "Out of stock";
+        return `<div class="mw-stock__row"><span>${icon} ${s.name}</span><span class="mw-stock__txt">${txt}</span></div>`;
+      }).join("");
+      html = `<div class="mw-card">
+        <div class="mw-card__title">${card.item}</div>
+        <div class="mw-card__online">🟢 ${card.online}</div>
+        <div class="mw-stock">${rows}</div></div>`;
+    } else if (card.kind === "tracking") {
+      const steps = card.steps.map((s) => `<div class="mw-track__step ${s.done ? "is-done" : ""}"><span class="mw-track__dot"></span>${s.label}</div>`).join("");
+      html = `<div class="mw-card">
+        <div class="mw-card__meta">Estimated delivery</div>
+        <div class="mw-card__title">${card.eta}</div>
+        <div class="mw-track">${steps}</div></div>`;
+    } else if (card.kind === "rewards") {
+      html = `<div class="mw-card mw-card--rewards">
+        <div class="mw-card__meta">MYER one · ${card.tier}</div>
+        <div class="mw-rewards"><div><div class="mw-rewards__num">${card.points}</div><div class="mw-rewards__lbl">points</div></div>
+        <div><div class="mw-rewards__num">${card.credit}</div><div class="mw-rewards__lbl">credit</div></div></div></div>`;
+    }
+    wrap.innerHTML = html;
+    messagesEl.appendChild(wrap);
+    scrollDown();
   }
 
   const composer = document.getElementById("mw-composer");

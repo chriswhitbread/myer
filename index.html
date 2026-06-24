@@ -3,106 +3,315 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MYER</title>
+  <title>MYER — Stocktake Sale</title>
+  <link rel="icon" href="https://www.myer.com.au/mfestatic/favicon.ico" sizes="any">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="messaging.css" />
 </head>
 <body>
-  <div class="utility-bar">
-    <div class="container utility-bar__inner">
-      <span class="utility-bar__msg">STOCKTAKE SALE · UP TO 40% OFF WOMEN'S FASHION · 50% OFF QUILTS, PILLOWS &amp; MORE · UP TO 30% OFF MEN'S FASHION</span>
+
+  <!-- Announcement bar -->
+  <div class="announcement-bar">
+    <div class="announcement-bar__inner">
+      UP TO 40% OFF WOMEN'S FASHION &nbsp;·&nbsp; 50% OFF QUILTS, PILLOWS &amp; MORE &nbsp;·&nbsp; UP TO 30% OFF MEN'S FASHION &nbsp;·&nbsp; 40% OFF KIDS' FASHION
     </div>
   </div>
+
+  <!-- Site header -->
   <header class="site-header">
     <div class="container site-header__top">
-      <a href="#" class="logo" aria-label="MYER home">MYER</a>
+      <!-- Utility links (top-right above search on the real site — rendered left of search here for flow) -->
+      <a href="#" class="logo" aria-label="MYER home">
+        <svg fill="none" height="32" viewBox="0 0 1136 180" width="168" xmlns="http://www.w3.org/2000/svg" aria-label="MYER" role="img"><g fill="#1f1f1f"><path d="M181.345 0L140.017 80.9964L98.6859 0H-0.000244141V179.053H24.3022V61.8109L84.2637 179.053H137.379L189.127 61.8109V179.053H279.344V0H181.345ZM1135.92 51.2313C1135.59 15.7004 1104.63 0 1066.02 0H876.729V179.049H970.706V109.736L1026.47 179.049H1135.92L1074.16 102.152C1108.77 99.6536 1136.2 81.8085 1135.92 51.2313ZM1009.98 65.4786H970.597V37.0967H1009.98C1021.99 37.0967 1031.62 41.4443 1031.73 51.2896C1031.82 60.4433 1021.99 65.4786 1009.98 65.4786ZM851.642 0V37.0928H706.93V70.9802H836.081V108.073H706.93V141.964H851.642V179.057H613.062V0H851.642ZM527.489 0L475.997 68.4819L418.037 0H299.431L398.35 117.001V179.053H501.609V121.353L592.975 0H527.489Z" fill="#1F1F1F"></path></g></svg>
+      </a>
+
       <form class="search" role="search" onsubmit="return false;">
+        <svg class="search__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#767676" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input class="search__input" type="search" placeholder="Search for products and brands" />
-        <button class="search__btn" aria-label="Search">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </button>
       </form>
-      <div class="header-icons">
-        <a href="#" class="header-icons__item">Sign In</a>
-        <a href="#" class="header-icons__item" aria-label="Wishlist">♡</a>
-        <a href="#" class="header-icons__item" aria-label="Bag">🛍</a>
+
+      <div class="header-utils">
+        <a href="#" class="header-utils__item">Find a store</a>
+        <a href="#" class="header-utils__item">Sign In / Account</a>
+        <a href="#" class="header-utils__item" aria-label="Wishlist">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Wishlist</span>
+        </a>
+        <a href="#" class="header-utils__item" aria-label="Bag">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span>Bag</span>
+        </a>
       </div>
     </div>
-    <nav class="main-nav">
+
+    <!-- Main nav -->
+    <nav class="main-nav" aria-label="Main navigation">
       <ul class="container main-nav__list">
-        <li class="main-nav__item main-nav__item--sale">Stocktake Sale</li>
-        <li class="main-nav__item">New In</li>
-        <li class="main-nav__item">Women</li>
-        <li class="main-nav__item">Men</li>
-        <li class="main-nav__item">Beauty</li>
-        <li class="main-nav__item">Home</li>
-        <li class="main-nav__item">Travel &amp; Tech</li>
-        <li class="main-nav__item">Kids</li>
-        <li class="main-nav__item">Toys</li>
-        <li class="main-nav__item">Brands</li>
-        <li class="main-nav__item">Gifts</li>
-        <li class="main-nav__item">MYER one</li>
+        <li class="main-nav__item main-nav__item--sale"><a href="#">Stocktake Sale</a></li>
+        <li class="main-nav__item"><a href="#">New In</a></li>
+        <li class="main-nav__item"><a href="#">Women</a></li>
+        <li class="main-nav__item"><a href="#">Men</a></li>
+        <li class="main-nav__item"><a href="#">Beauty</a></li>
+        <li class="main-nav__item"><a href="#">Home</a></li>
+        <li class="main-nav__item"><a href="#">Travel &amp; Tech</a></li>
+        <li class="main-nav__item"><a href="#">Kids</a></li>
+        <li class="main-nav__item"><a href="#">Toys</a></li>
+        <li class="main-nav__item"><a href="#">Brands</a></li>
+        <li class="main-nav__item"><a href="#">Gifts</a></li>
+        <li class="main-nav__item"><a href="#">MYER one</a></li>
       </ul>
     </nav>
   </header>
-  <section class="hero">
-    <div class="hero__overlay">
-      <div class="container">
-        <p class="hero__eyebrow">STOCKTAKE SALE</p>
-        <h1 class="hero__title">Huge Savings Across the Store</h1>
-        <p class="hero__sub">Don't miss great deals on Fashion, Beauty, Homewares and More.</p>
-        <a href="#" class="hero__cta">Shop the Sale</a>
+
+  <main>
+
+    <!-- Hero banner -->
+    <section class="hero">
+      <a href="#" class="hero__link">
+        <img
+          class="hero__img"
+          src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/2a67/2a67a097-5259-4da2-8f00-73f4396be529.jpg?output-format=webp"
+          alt="Stocktake Sale — huge savings across the store"
+        />
+        <div class="hero__overlay">
+          <p class="hero__eyebrow">STOCKTAKE SALE</p>
+          <h1 class="hero__title">Huge Savings Across the Store</h1>
+          <span class="hero__cta">Shop the Sale</span>
+        </div>
+      </a>
+    </section>
+
+    <!-- Top Sale Picks for You -->
+    <section class="container section-block">
+      <h2 class="section-title">Top Sale Picks for You</h2>
+      <div class="product-row">
+
+        <a class="product-tile" href="#">
+          <div class="product-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/3241/3241e5d5-1915-4ea1-9177-0a5b59181a06.jpg?output-format=webp" alt="Women's fashion sale pick" loading="lazy" />
+          </div>
+          <div class="product-tile__info">
+            <p class="product-tile__brand">Women's Fashion</p>
+            <p class="product-tile__name">Sale Styles</p>
+            <p class="product-tile__price"><span class="price--sale">From $29.99</span></p>
+          </div>
+        </a>
+
+        <a class="product-tile" href="#">
+          <div class="product-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/6618/6618ba15-8068-4b0b-8681-31ca7e11cb28.jpg?output-format=webp" alt="Men's fashion sale pick" loading="lazy" />
+          </div>
+          <div class="product-tile__info">
+            <p class="product-tile__brand">Men's Fashion</p>
+            <p class="product-tile__name">Sale Styles</p>
+            <p class="product-tile__price"><span class="price--sale">From $34.99</span></p>
+          </div>
+        </a>
+
+        <a class="product-tile" href="#">
+          <div class="product-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/c743/c7436019-9f7f-405c-915e-a6c6b9a43b36.jpg?output-format=webp" alt="Beauty sale pick" loading="lazy" />
+          </div>
+          <div class="product-tile__info">
+            <p class="product-tile__brand">Beauty</p>
+            <p class="product-tile__name">Top Picks</p>
+            <p class="product-tile__price"><span class="price--sale">From $19.99</span></p>
+          </div>
+        </a>
+
+        <a class="product-tile" href="#">
+          <div class="product-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/f832/f832b45c-6af5-4dc6-9c1c-43cccf8a9452.jpg?output-format=webp" alt="Home sale pick" loading="lazy" />
+          </div>
+          <div class="product-tile__info">
+            <p class="product-tile__brand">Home</p>
+            <p class="product-tile__name">Sale Picks</p>
+            <p class="product-tile__price"><span class="price--sale">From $24.99</span></p>
+          </div>
+        </a>
+
+        <a class="product-tile" href="#">
+          <div class="product-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/1e64/1e64bacd-2258-4db6-bd8e-5ba8fe677a70.jpg?output-format=webp" alt="Kids sale pick" loading="lazy" />
+          </div>
+          <div class="product-tile__info">
+            <p class="product-tile__brand">Kids</p>
+            <p class="product-tile__name">Sale Styles</p>
+            <p class="product-tile__price"><span class="price--sale">From $14.99</span></p>
+          </div>
+        </a>
+
       </div>
-    </div>
-  </section>
-  <section class="container promo-grid">
-    <a class="promo-tile" href="#">
-      <div class="promo-tile__img" style="background:linear-gradient(135deg,#d7c4b8,#b89a86)"></div>
-      <div class="promo-tile__body"><h3>Women's Fashion</h3><p>Up to 40% off</p></div>
-    </a>
-    <a class="promo-tile" href="#">
-      <div class="promo-tile__img" style="background:linear-gradient(135deg,#c2d2e0,#8fb0cc)"></div>
-      <div class="promo-tile__body"><h3>Quilts &amp; Pillows</h3><p>50% off</p></div>
-    </a>
-    <a class="promo-tile" href="#">
-      <div class="promo-tile__img" style="background:linear-gradient(135deg,#cdbfe0,#9d86c2)"></div>
-      <div class="promo-tile__body"><h3>Men's Fashion</h3><p>Up to 30% off</p></div>
-    </a>
-  </section>
+    </section>
 
-  <section class="container category-block">
-    <h2 class="section-title">Shop by Category</h2>
-    <div class="category-grid">
-      <a class="category-card" href="#"><div class="category-card__img" style="background:#e8e1d9"></div><span>Women</span></a>
-      <a class="category-card" href="#"><div class="category-card__img" style="background:#dde6ec"></div><span>Men</span></a>
-      <a class="category-card" href="#"><div class="category-card__img" style="background:#f0e3e3"></div><span>Beauty</span></a>
-      <a class="category-card" href="#"><div class="category-card__img" style="background:#e3ece3"></div><span>Home</span></a>
-      <a class="category-card" href="#"><div class="category-card__img" style="background:#e6e0ec"></div><span>Travel &amp; Tech</span></a>
-      <a class="category-card" href="#"><div class="category-card__img" style="background:#ece8dd"></div><span>Kids &amp; Toys</span></a>
-    </div>
-  </section>
+    <!-- Promo tiles row -->
+    <section class="container section-block">
+      <div class="promo-row">
 
+        <a class="promo-tile" href="#">
+          <div class="promo-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/a0eb/a0eb6b90-3379-4d57-afab-c22ea3e523f7.jpg?output-format=webp" alt="Women's fashion up to 40% off" loading="lazy" />
+          </div>
+          <div class="promo-tile__caption">
+            <p class="promo-tile__off">UP TO 40% OFF</p>
+            <p class="promo-tile__label">Women's Fashion</p>
+          </div>
+        </a>
+
+        <a class="promo-tile" href="#">
+          <div class="promo-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/8b7e/8b7e8e41-304f-4754-bb37-8055e6d09095.jpg?output-format=webp" alt="Men's fashion up to 30% off" loading="lazy" />
+          </div>
+          <div class="promo-tile__caption">
+            <p class="promo-tile__off">UP TO 30% OFF</p>
+            <p class="promo-tile__label">Men's Fashion</p>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- Great Deals grid -->
+    <section class="container section-block">
+      <h2 class="section-title">Great Deals on Women's &amp; Men's Fashion</h2>
+      <div class="deals-grid">
+
+        <a class="deal-tile" href="#">
+          <div class="deal-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/0c7c/0c7c53e2-c2ad-4ebe-a874-e74250dd9893.jpg?output-format=webp" alt="Dresses — up to 40% off" loading="lazy" />
+          </div>
+          <p class="deal-tile__off">UP TO 40% OFF</p>
+          <p class="deal-tile__label">Dresses</p>
+        </a>
+
+        <a class="deal-tile" href="#">
+          <div class="deal-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/8525/85259afa-98cd-41f5-bfd5-25846ca8e3da.jpg?output-format=webp" alt="Tops — up to 35% off" loading="lazy" />
+          </div>
+          <p class="deal-tile__off">UP TO 35% OFF</p>
+          <p class="deal-tile__label">Tops &amp; Blouses</p>
+        </a>
+
+        <a class="deal-tile" href="#">
+          <div class="deal-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/c2b4/c2b4d495-d2b5-43f6-a2d8-f96f5850a937.jpg?output-format=webp" alt="Jeans &amp; Pants — up to 30% off" loading="lazy" />
+          </div>
+          <p class="deal-tile__off">UP TO 30% OFF</p>
+          <p class="deal-tile__label">Jeans &amp; Pants</p>
+        </a>
+
+        <a class="deal-tile" href="#">
+          <div class="deal-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/81f6/81f647b8-8af5-481b-a24e-6d841ba43ffa.jpg?output-format=webp" alt="Jackets — up to 45% off" loading="lazy" />
+          </div>
+          <p class="deal-tile__off">UP TO 45% OFF</p>
+          <p class="deal-tile__label">Jackets &amp; Coats</p>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- Shop by Category -->
+    <section class="container section-block">
+      <h2 class="section-title">Shop by Category</h2>
+      <div class="category-grid">
+
+        <a class="category-tile" href="#">
+          <div class="category-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/3241/3241e5d5-1915-4ea1-9177-0a5b59181a06.jpg?output-format=webp" alt="Women" loading="lazy" />
+          </div>
+          <span class="category-tile__label">Women</span>
+        </a>
+
+        <a class="category-tile" href="#">
+          <div class="category-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/6618/6618ba15-8068-4b0b-8681-31ca7e11cb28.jpg?output-format=webp" alt="Men" loading="lazy" />
+          </div>
+          <span class="category-tile__label">Men</span>
+        </a>
+
+        <a class="category-tile" href="#">
+          <div class="category-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/c743/c7436019-9f7f-405c-915e-a6c6b9a43b36.jpg?output-format=webp" alt="Beauty" loading="lazy" />
+          </div>
+          <span class="category-tile__label">Beauty</span>
+        </a>
+
+        <a class="category-tile" href="#">
+          <div class="category-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/f832/f832b45c-6af5-4dc6-9c1c-43cccf8a9452.jpg?output-format=webp" alt="Home" loading="lazy" />
+          </div>
+          <span class="category-tile__label">Home</span>
+        </a>
+
+        <a class="category-tile" href="#">
+          <div class="category-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/1e64/1e64bacd-2258-4db6-bd8e-5ba8fe677a70.jpg?output-format=webp" alt="Kids" loading="lazy" />
+          </div>
+          <span class="category-tile__label">Kids</span>
+        </a>
+
+        <a class="category-tile" href="#">
+          <div class="category-tile__img-wrap">
+            <img src="https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/0c7c/0c7c53e2-c2ad-4ebe-a874-e74250dd9893.jpg?output-format=webp" alt="Toys" loading="lazy" />
+          </div>
+          <span class="category-tile__label">Toys</span>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
   <footer class="site-footer">
     <div class="container site-footer__cols">
       <div class="footer-col">
         <h4>Customer Service</h4>
-        <a href="#">Contact Us</a><a href="#">Delivery</a><a href="#">Returns &amp; Refunds</a><a href="#">FAQs</a>
+        <a href="#">Contact Us</a>
+        <a href="#">Delivery Information</a>
+        <a href="#">Returns &amp; Refunds</a>
+        <a href="#">FAQs</a>
+        <a href="#">Live Chat</a>
       </div>
       <div class="footer-col">
         <h4>My Account</h4>
-        <a href="#">Sign In</a><a href="#">Order History</a><a href="#">MYER one</a><a href="#">Gift Cards</a>
+        <a href="#">Sign In</a>
+        <a href="#">Order History</a>
+        <a href="#">MYER one</a>
+        <a href="#">Gift Cards</a>
+        <a href="#">Wishlist</a>
       </div>
       <div class="footer-col">
         <h4>About Myer</h4>
-        <a href="#">Our Story</a><a href="#">Careers</a><a href="#">Store Locator</a><a href="#">Press</a>
+        <a href="#">Our Story</a>
+        <a href="#">Careers</a>
+        <a href="#">Store Locator</a>
+        <a href="#">Sustainability</a>
+        <a href="#">Press</a>
       </div>
       <div class="footer-col">
         <h4>Stay Connected</h4>
-        <a href="#">Newsletter</a><a href="#">Instagram</a><a href="#">Facebook</a><a href="#">Pinterest</a>
+        <a href="#">Newsletter Sign Up</a>
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">Pinterest</a>
+        <a href="#">App — MYER</a>
       </div>
     </div>
-    <div class="site-footer__legal"><div class="container">© 2026 Myer Pty Ltd. Demo site for Salesforce Enhanced Messaging — not affiliated with Myer.</div></div>
+    <div class="site-footer__logo">
+      <svg fill="none" height="20" viewBox="0 0 1136 180" width="100" xmlns="http://www.w3.org/2000/svg" aria-label="MYER" role="img"><g fill="#767676"><path d="M181.345 0L140.017 80.9964L98.6859 0H-0.000244141V179.053H24.3022V61.8109L84.2637 179.053H137.379L189.127 61.8109V179.053H279.344V0H181.345ZM1135.92 51.2313C1135.59 15.7004 1104.63 0 1066.02 0H876.729V179.049H970.706V109.736L1026.47 179.049H1135.92L1074.16 102.152C1108.77 99.6536 1136.2 81.8085 1135.92 51.2313ZM1009.98 65.4786H970.597V37.0967H1009.98C1021.99 37.0967 1031.62 41.4443 1031.73 51.2896C1031.82 60.4433 1021.99 65.4786 1009.98 65.4786ZM851.642 0V37.0928H706.93V70.9802H836.081V108.073H706.93V141.964H851.642V179.057H613.062V0H851.642ZM527.489 0L475.997 68.4819L418.037 0H299.431L398.35 117.001V179.053H501.609V121.353L592.975 0H527.489Z" fill="#767676"></path></g></svg>
+    </div>
+    <div class="site-footer__legal">
+      <div class="container">
+        &copy; 2026 Demo site — Salesforce Enhanced Messaging simulation. Not affiliated with or endorsed by Myer Pty Ltd. All product imagery is &copy; Myer Pty Ltd.
+      </div>
+    </div>
   </footer>
+
   <!-- Salesforce Enhanced Messaging widget mounts here -->
   <div id="myer-messaging-root"></div>
   <script src="conversations.js"></script>

@@ -43,20 +43,31 @@ Pick **Return an item** from the opening menu for the headline self-service jour
 **email-first** and data-driven from the customer record in `webchat-data.js`:
 
 1. **Enter your email** (any address works in the demo — it falls back to the demo customer).
-2. **One-time code** by SMS or email to confirm it's you.
-3. **Your orders are looked up** — recent delivered (returnable) orders show as cards, and any
-   **in-flight** orders are listed with carrier + status.
-4. **Pick the product** you want to return.
-5. **Why are you returning it?** (asked before the label is generated).
+2. **Confirm it's you with a 6-digit code** — sent to your **email** or your **phone ending 51**.
+   Any code you type is accepted in the demo.
+3. **Your orders are looked up** — *"You've made 3 orders in the past month"* — each shown as a
+   tappable chip (date · lead item · total).
+4. **Pick an order**, then choose **the whole order or a single line item** (each order lists 2–3
+   products as cards).
+5. **Why are you returning it?** — structured reasons (Too small / Too big / Changed my mind / Faulty).
 6. **Confirm** → a **prepaid return label** is emailed + texted and the refund is set up.
-7. **Bigger-size offer** — the bot then offers the same item one size up, naming the
-   **nearest store with it in stock** (computed from the record), with click & collect, post-to-me,
-   or refund. Try the Seed Linen Dress (size 12 at Chadstone) vs the Nike Air Max (size up at Highpoint)
-   to see the store selection change.
+7. **Size-up exchange offer** — the bot then offers the same item in a different size, naming the
+   **nearest store with it in stock** (computed from the record). Pick the *Nike Air Max* and say
+   *Too small* to see **Chadstone** (3.1km) offered for click & collect; the dress and top resolve
+   to different stores, so the store selection is genuinely data-driven.
 
 Watch for: the **faux inbox** (top-right) and **phone SMS toast** (bottom-right) firing on
 sends; **✅ Resolved / 👤 Routed** badges; the **deflection counter** (bottom-left); a
 post-return **cross-sell**; and the **☰ channel-consolidation callout** in the chat header.
+
+**Best-practice basis.** The flow follows widely-recommended returns-automation patterns: lift
+order details from the OMS up front, support **both order-level and item-level** returns, collect
+the reason with **structured options** (size/fit is ~45% of returns), and **proactively offer an
+exchange before a refund** to retain the sale (a well-designed exchange path can convert a large
+share of would-be refunds). See
+[Quickchat — Return & Exchange Chatbot Automation](https://quickchat.ai/post/return-chatbot),
+[Loop Returns — chatbots to reduce returns](https://www.loopreturns.com/blog/chatbots-ecommerce-reduce-returns-improve-customer-satisfaction/),
+and [The Retail Exec — Ecommerce Returns Best Practices](https://theretailexec.com/logistics/ecommerce-returns-best-practices/).
 
 > Demo only. Simulated Agentforce-style webchat — not connected to a live Salesforce org or
 > any real system. Not affiliated with Myer. All data is mock; PII is masked in replies.

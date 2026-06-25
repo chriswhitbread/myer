@@ -20,18 +20,23 @@ window.MyerWebchatFlows = (function () {
 
     /* ============================================================
        Return an item — email-first guided flow:
-         email → verify by code → list recent + in-flight orders →
-         pick a product → reason → confirm label → process →
-         offer a bigger size (nearest in-stock store) → pickup/send.
-       Driven by the customer record in webchat-data.js.
+         email → confirm by 6-digit code (email or phone ending 51) →
+         list the 3 orders from the past month → pick an order →
+         return the whole order OR pick a line item → reason →
+         confirm label → process → size-up exchange (nearest in-stock
+         store, e.g. Chadstone). Driven by webchat-data.js.
+
+       Best-practice basis (see README): structured return-reason
+       options, item- and order-level returns, and a proactive
+       exchange-before-refund offer to retain the sale.
        ============================================================ */
     rt_start: {
       messages: [{ type: "text", text: "Happy to help with a return. What's the email address on your Myer account?" }],
       onEnter: (ctx) => {
-        ctx.demoState.returnIndex = undefined;
+        ctx.demoState.orderIndex = undefined; ctx.demoState.returnIndex = undefined;
         ctx.awaitInput("rt_email", (val) => {
           // Demo: accept any email; fall back to the demo customer so the
-          // flow always has recent + in-flight orders to work with.
+          // flow always has orders to work with.
           ctx.demoState.customer = ctx.W.lookupCustomer(val.trim());
           ctx.goToStep("rt_verify_choice");
         });
@@ -45,75 +50,114 @@ window.MyerWebchatFlows = (function () {
     },
     rt_verify_choice: {
       messages: [
-        { type: "text", text: "Thanks — I've found your account. To keep your details safe, I'll send a one-time code before I pull up your orders. Where would you like it?" },
-        { type: "note", text: "Lightweight verification — fit for order, returns and tracking. Account changes would step up to MFA." }
+        { type: "text", text: "Thanks — I've found your order. Can I send you a 6-digit code to confirm it's you? I can send it to your email or your phone ending 51." }
       ],
       quickReplies: [
-        { label: "Text me a code", next: "rt_code_sms" },
-        { label: "Email me a code", next: "rt_code_email" }
+        { label: "Phone ending 51", next: "rt_code_sms" },
+        { label: "Email", next: "rt_code_email" }
       ]
     },
     rt_code_sms: {
-      messages: [{ type: "text", text: "Sent! Check your phone for a 6-digit code. 📱" }],
+      messages: [{ type: "text", text: "The 6-digit code has been sent to your phone ending 51. 📱 Pop it in below when it arrives." }],
       onEnter: (ctx) => {
         const c = ctx.demoState.customer;
         ctx.fireSms({ to: ctx.maskM(c.mobile), body: "Myer: your one-time verification code is 4–8–2–9–1–7. It expires in 10 minutes." });
-      },
-      quickReplies: [{ label: "I've entered the code", next: "rt_orders" }]
+        // Accept any code the shopper enters (demo).
+        ctx.awaitInput("rt_code", () => ctx.goToStep("rt_orders"));
+      }
     },
     rt_code_email: {
-      messages: [{ type: "text", text: "Sent! Check your inbox for a 6-digit code. 📩" }],
+      messages: [{ type: "text", text: "The 6-digit code has been sent to your email. 📩 Pop it in below when it arrives." }],
       onEnter: (ctx) => {
         const c = ctx.demoState.customer;
         ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer verification code", body: "Your one-time verification code is 482917. It expires in 10 minutes." });
-      },
-      quickReplies: [{ label: "I've entered the code", next: "rt_orders" }]
+        ctx.awaitInput("rt_code", () => ctx.goToStep("rt_orders"));
+      }
     },
 
-    /* ---- Email lookup result: recent (returnable) + in-flight orders ---- */
+    /* ---- Verified: list the orders from the past month, pick one ---- */
     rt_orders: {
       messages: [],
       onEnter: (ctx) => {
         const c = ctx.demoState.customer;
         ctx.appendBubble({ role: "bot", text: `Perfect, you're verified. ✅ Welcome back, ${c.name}.` });
-        ctx.appendBubble({ role: "bot", text: "Here are your recent orders from the last 30 days:" });
-        c.recent.forEach((it) => ctx.renderCard({
-          kind: "order", id: it.id,
-          item: `${it.product} — ${it.variant}, Size ${it.size}`,
-          price: `$${it.price.toFixed(2)} · ${it.delivered}`,
-          thumb: it.thumb
-        }));
-        if (c.inflight && c.inflight.length) {
-          ctx.appendBubble({ role: "bot", text: "And these are still on their way — I'll have tracking ready if you need it:" });
-          c.inflight.forEach((it) => ctx.appendBubble({ role: "bot", text: `📦 ${it.product} — ${it.status} (${it.carrier})` }));
-        }
-        ctx.appendBubble({ role: "bot", text: "Which item would you like to return?" });
-        const chips = c.recent
-          .filter((it) => it.returnable)
-          .map((it) => ({ label: `${it.product} (Size ${it.size})`, returnItem: c.recent.indexOf(it), next: "rt_reason" }));
+        ctx.appendBubble({ role: "bot", text: `You've made ${c.orders.length} orders in the past month. Which one is the return from?` });
+        const chips = c.orders.map((o, i) => {
+          const lead = o.items[0].product;
+          const more = o.items.length > 1 ? ` +${o.items.length - 1} more` : "";
+          return { label: `${o.placed} · ${lead}${more} — $${ctx.W.orderTotal(o).toFixed(2)}`, orderIdx: i, next: "rt_order_detail" };
+        });
         chips.push({ label: "None of these", next: "rt_none" });
         ctx.renderQuickReplies(chips);
       }
     },
     rt_none: {
-      messages: [{ type: "text", text: "No problem. If it's an in-flight order or something older than 30 days, let me know the order number and I'll take a look — or I can connect you to the team." }],
+      messages: [{ type: "text", text: "No problem. If it's an older order or something still on its way, let me know the order number and I'll take a look — or I can connect you to the team." }],
       quickReplies: [
         { label: "Start over", next: "rt_start" },
         { label: "That's all, thanks", next: "wc_bye" }
       ]
     },
 
-    /* ---- Reason for return (asked before the label is generated) ---- */
+    /* ---- Order picked: whole order, or pick a line item ---- */
+    rt_order_detail: {
+      messages: [],
+      onEnter: (ctx) => {
+        const o = ctx.demoState.customer.orders[ctx.demoState.orderIndex];
+        ctx.appendBubble({ role: "bot", text: `Order ${o.id} — ${o.delivered}. Here's what was in it:` });
+        o.items.forEach((it) => ctx.renderCard({
+          kind: "order", id: o.id,
+          item: `${it.product} — ${it.variant}, Size ${it.size}`,
+          price: `$${it.price.toFixed(2)}`,
+          thumb: it.thumb
+        }));
+        ctx.appendBubble({ role: "bot", text: "Would you like to return the whole order, or just one of these?" });
+        const chips = o.items.map((it, i) => ({ label: `Just the ${it.product}`, returnItem: i, next: "rt_reason" }));
+        chips.unshift({ label: "Return the whole order", next: "rt_whole" });
+        ctx.renderQuickReplies(chips);
+      }
+    },
+
+    /* ---- Whole-order return ---- */
+    rt_whole: {
+      messages: [],
+      onEnter: (ctx) => {
+        const c = ctx.demoState.customer;
+        const o = c.orders[ctx.demoState.orderIndex];
+        const total = ctx.W.orderTotal(o);
+        ctx.appendBubble({ role: "bot", text: `No worries — returning all ${o.items.length} items from order ${o.id} for a refund of $${total.toFixed(2)}.` });
+        ctx.appendBubble({ role: "bot", text: "I'll email and text a single prepaid label covering the whole order once you confirm. Nothing's processed until you say go." });
+        ctx.renderQuickReplies([
+          { label: "Confirm return", next: "rt_whole_done" },
+          { label: "Actually, just one item", next: "rt_order_detail" }
+        ]);
+      }
+    },
+    rt_whole_done: {
+      messages: [],
+      onEnter: (ctx) => {
+        const c = ctx.demoState.customer;
+        const o = c.orders[ctx.demoState.orderIndex];
+        const total = ctx.W.orderTotal(o);
+        ctx.appendBubble({ role: "bot", text: `Done! ✅ Your return is set up and a prepaid label is on its way to your email and phone. Your refund of $${total.toFixed(2)} lands as soon as it's scanned. 💸` });
+        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer return label", body: `Return for order ${o.id} (${o.items.length} items). Prepaid label attached. Refund $${total.toFixed(2)} on scan.` });
+        ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: your prepaid return label for order ${o.id} is ready. Drop at any Aus Post. Refund $${total.toFixed(2)} on scan.` });
+        ctx.recordOutcome("resolved");
+        ctx.renderQuickReplies([{ label: "That's all, thanks", next: "wc_bye" }]);
+      }
+    },
+
+    /* ---- Reason for return (structured options, asked before the label) ---- */
     rt_reason: {
       messages: [],
       onEnter: (ctx) => {
-        const it = ctx.demoState.customer.recent[ctx.demoState.returnIndex];
+        const it = ctx.demoState.customer.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
         ctx.appendBubble({ role: "bot", text: `Good choice to sort it now. Why are you returning the ${it.product}?` });
         ctx.renderQuickReplies([
           { label: "Too small", next: "rt_label" },
+          { label: "Too big", next: "rt_label" },
           { label: "Changed my mind", next: "rt_label" },
-          { label: "Faulty", next: "rt_label" },
-          { label: "Wrong item sent", next: "rt_label" }
+          { label: "Faulty", next: "rt_label" }
         ]);
       }
     },
@@ -122,10 +166,10 @@ window.MyerWebchatFlows = (function () {
       onEnter: (ctx) => {
         // The chip the customer just tapped is their reason — capture it.
         ctx.demoState.returnReason = ctx.demoState.lastChip || "";
-        const it = ctx.demoState.customer.recent[ctx.demoState.returnIndex];
+        const it = ctx.demoState.customer.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
         ctx.appendBubble({ role: "bot", text: "No worries. Here's your return summary — please check before I process it:" });
         ctx.renderCard({
-          kind: "order", id: it.id,
+          kind: "order", id: ctx.demoState.customer.orders[ctx.demoState.orderIndex].id,
           item: `${it.product} — ${it.variant}, Size ${it.size}`,
           price: `Refund $${it.price.toFixed(2)}`,
           thumb: it.thumb
@@ -148,9 +192,10 @@ window.MyerWebchatFlows = (function () {
       messages: [],
       onEnter: (ctx) => {
         const c = ctx.demoState.customer;
-        const it = c.recent[ctx.demoState.returnIndex];
+        const o = c.orders[ctx.demoState.orderIndex];
+        const it = o.items[ctx.demoState.returnIndex];
         ctx.appendBubble({ role: "bot", text: `Done! ✅ Your return is set up and a prepaid label is on its way to your email and phone. Your refund of $${it.price.toFixed(2)} lands as soon as it's scanned. 💸` });
-        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer return label", body: `Return ${it.id} — ${it.product} (Size ${it.size}). Prepaid label attached. Refund $${it.price.toFixed(2)} on scan.` });
+        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer return label", body: `Return ${o.id} — ${it.product} (Size ${it.size}). Prepaid label attached. Refund $${it.price.toFixed(2)} on scan.` });
         ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: your prepaid return label is ready. Drop at any Aus Post. Refund $${it.price.toFixed(2)} on scan.` });
         ctx.recordOutcome("resolved");
         ctx.goToStep("rt_exchange_offer");
@@ -161,14 +206,14 @@ window.MyerWebchatFlows = (function () {
     rt_exchange_offer: {
       messages: [],
       onEnter: (ctx) => {
-        const it = ctx.demoState.customer.recent[ctx.demoState.returnIndex];
+        const it = ctx.demoState.customer.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
         // Non-apparel or no size-up defined → straight refund path.
         if (!it.apparel || !it.sizeUp) { ctx.goToStep("rt_refund_only"); return; }
         const store = ctx.W.nearestInStock(it);
         const tooSmall = ctx.demoState.returnReason === "Too small";
         ctx.appendBubble({ role: "bot", text: tooSmall
           ? `Let's get you the right fit rather than just sending it back — would you like the same ${it.product} in a size ${it.sizeUp} instead of a refund?`
-          : `Before you go — would you like the same ${it.product} in a bigger size (${it.sizeUp}) instead of a refund?` });
+          : `Before you go — would you like the same ${it.product} in a different size (${it.sizeUp}) instead of a refund?` });
         if (store) {
           const others = it.stores.filter((s) => s.inStock && s !== store)
             .map((s) => `${s.name}, ${s.km}km`).join("; ");
@@ -191,7 +236,7 @@ window.MyerWebchatFlows = (function () {
       messages: [],
       onEnter: (ctx) => {
         const c = ctx.demoState.customer;
-        const it = c.recent[ctx.demoState.returnIndex];
+        const it = c.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
         const store = ctx.W.nearestInStock(it) || { name: "Myer Chadstone" };
         ctx.appendBubble({ role: "bot", text: `Done! Your size ${it.sizeUp} is reserved at ${store.name} — collection desk, Level 2. Bring the size ${it.size} when you collect and we'll swap it on the spot. No postage either way. I've sent the collection details to your email and phone. ✅` });
         ctx.fireEmail({ to: ctx.maskE(c.email), subject: `Your ${store.name} click & collect`, body: `Size ${it.sizeUp} of the ${it.product} reserved at ${store.name} (collection desk, Level 2). Bring your size ${it.size} to swap on the spot.` });
@@ -208,7 +253,7 @@ window.MyerWebchatFlows = (function () {
       messages: [],
       onEnter: (ctx) => {
         const c = ctx.demoState.customer;
-        const it = c.recent[ctx.demoState.returnIndex];
+        const it = c.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
         ctx.appendBubble({ role: "bot", text: `Done! I'll post the size ${it.sizeUp} out to you, and your prepaid return label for the size ${it.size} is on its way to your email and phone. No postage either way. ✅` });
         ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer exchange", body: `Size ${it.sizeUp} of the ${it.product} on its way to you; prepaid return label for size ${it.size} attached. No postage.` });
         ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: size ${it.sizeUp} is on its way; prepaid return label for size ${it.size} sent. No postage either way.` });
@@ -219,7 +264,7 @@ window.MyerWebchatFlows = (function () {
     rt_refund_only: {
       messages: [],
       onEnter: (ctx) => {
-        const it = ctx.demoState.customer.recent[ctx.demoState.returnIndex];
+        const it = ctx.demoState.customer.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
         ctx.appendBubble({ role: "bot", text: `No problem at all — we'll refund $${it.price.toFixed(2)} to your original payment as soon as the ${it.product} is scanned. Thanks for shopping with Myer! 💙` });
         ctx.renderQuickReplies([{ label: "That's all, thanks", next: "wc_bye" }]);
       }

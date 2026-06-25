@@ -175,8 +175,9 @@
     if (qr.order && window.MyerWebchat) {
       demoState.order = window.MyerWebchat.lookupOrder(qr.order) || null;
     }
-    // A chip may pick a specific item from the customer's recent orders to
-    // return (set during the email-first return flow). Index into recent[].
+    // Chips in the email-first return flow may carry which order / line item
+    // the shopper picked: orderIdx → customer.orders[], returnItem → items[].
+    if (qr.orderIdx !== undefined) demoState.orderIndex = qr.orderIdx;
     if (qr.returnItem !== undefined) demoState.returnIndex = qr.returnItem;
     goToStep(qr.next);
   }

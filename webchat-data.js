@@ -30,6 +30,66 @@ window.MyerWebchat = (function () {
     { product: "Seed Linen Dress", size: "14", store: "Myer Chadstone", inStock: false }
   ];
 
+  /* ------------------------------------------------------------------
+     Customer accounts keyed by email. Drives the email-first return
+     flow: look up recent (delivered, returnable) orders + anything
+     still in flight, let the shopper pick a product to return, then
+     offer a size-up exchange with nearest in-stock store.
+     ------------------------------------------------------------------ */
+  const customers = {
+    "chris@email.com": {
+      name: "Chris",
+      email: "chris@email.com",
+      mobile: "0466 555 666",
+      recent: [
+        {
+          id: "MYR-89421", product: "Seed Linen Dress", variant: "Navy", size: "10",
+          price: 129.95, placed: "Placed 14 Jun", delivered: "Delivered 18 Jun",
+          thumb: "#cdbfe0", returnable: true, apparel: true, sizeUp: "12",
+          stores: [
+            { name: "Myer Chadstone", km: 3.1, inStock: true },
+            { name: "Myer Highpoint", km: 8.4, inStock: true },
+            { name: "Myer Doncaster", km: 11.0, inStock: true }
+          ]
+        },
+        {
+          id: "MYR-89107", product: "Country Road Wool Coat", variant: "Camel", size: "M",
+          price: 249.00, placed: "Placed 8 Jun", delivered: "Delivered 12 Jun",
+          thumb: "#c9b89a", returnable: true, apparel: true, sizeUp: "L",
+          stores: [
+            { name: "Myer Chadstone", km: 3.1, inStock: true },
+            { name: "Myer City (Bourke St)", km: 9.0, inStock: false }
+          ]
+        },
+        {
+          id: "MYR-88934", product: "Nike Air Max 90", variant: "White", size: "US 9",
+          price: 180.00, placed: "Placed 1 Jun", delivered: "Delivered 5 Jun",
+          thumb: "#dfe3e8", returnable: true, apparel: true, sizeUp: "US 10",
+          stores: [
+            { name: "Myer Chadstone", km: 3.1, inStock: false },
+            { name: "Myer Highpoint", km: 8.4, inStock: true }
+          ]
+        }
+      ],
+      inflight: [
+        { id: "MYR-90233", product: "2 × Sheridan Bath Towels", carrier: "Australia Post", status: "Out for delivery today", thumb: "#bcd3c8" },
+        { id: "MYR-90118", product: "Dyson Airwrap Styler", carrier: "Couriers Please", status: "In transit — arriving Thu", thumb: "#e6d2da" }
+      ]
+    }
+  };
+
+  function lookupCustomer(email) {
+    const key = String(email).trim().toLowerCase();
+    // Demo: match a real record, otherwise fall back to the demo customer so
+    // the email-first return flow always has orders to work with.
+    return customers[key] || customers["chris@email.com"];
+  }
+  // Nearest store that has the size-up in stock, or null.
+  function nearestInStock(item) {
+    if (!item || !item.stores) return null;
+    return item.stores.filter((s) => s.inStock).sort((a, b) => a.km - b.km)[0] || null;
+  }
+
   function maskEmail(email) {
     const [user, domain] = String(email).split("@");
     if (!domain) return email;
@@ -46,5 +106,5 @@ window.MyerWebchat = (function () {
     return inventory.some((i) => i.product === product && i.size === size && i.store === store && i.inStock);
   }
 
-  return { orders, inventory, maskEmail, maskMobile, lookupOrder, checkInventory };
+  return { orders, inventory, customers, maskEmail, maskMobile, lookupOrder, checkInventory, lookupCustomer, nearestInStock };
 })();

@@ -168,10 +168,16 @@
   // which lets the opening menu offer demo orders as clickable chips.
   function handleChip(qr) {
     clearQuickReplies();
+    // Remember the tapped label so a following step can read it (e.g. the
+    // return-reason chip drives copy on the exchange offer).
+    demoState.lastChip = qr.label;
     if (qr.label !== "(continue)") appendBubble({ role: "customer", text: qr.label });
     if (qr.order && window.MyerWebchat) {
       demoState.order = window.MyerWebchat.lookupOrder(qr.order) || null;
     }
+    // A chip may pick a specific item from the customer's recent orders to
+    // return (set during the email-first return flow). Index into recent[].
+    if (qr.returnItem !== undefined) demoState.returnIndex = qr.returnItem;
     goToStep(qr.next);
   }
 
@@ -233,7 +239,7 @@
         const _W = window.MyerWebchat || {};
         step.onEnter({ demoState, goToStep, appendBubble, awaitInput, fireEmail, fireSms, recordOutcome,
           W: _W, maskE: _W.maskEmail, maskM: _W.maskMobile,
-          renderQuickReplies, renderCrossSell });
+          renderQuickReplies, renderCrossSell, renderCard });
       }
       return;
     }
@@ -255,7 +261,7 @@
       const _W = window.MyerWebchat || {};
       step.onEnter({ demoState, goToStep, appendBubble, awaitInput, fireEmail, fireSms, recordOutcome,
         W: _W, maskE: _W.maskEmail, maskM: _W.maskMobile,
-        renderQuickReplies, renderCrossSell });
+        renderQuickReplies, renderCrossSell, renderCard });
     }
     if (typeof step.dynamicNext === "function") {
       const nx = step.dynamicNext({ demoState, W: window.MyerWebchat });

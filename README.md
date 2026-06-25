@@ -37,6 +37,23 @@ order (shown below). The order number deterministically selects the branch:
 | M2000004 | dan@email.com / 0488 777 888 | Returns — damaged, keep it + refund |
 | M2000005 | kim@email.com / 0499 888 999 | Returns — marketplace (routed) |
 
+### Email-first return (Return an item)
+
+Pick **Return an item** from the opening menu for the headline self-service journey. It is
+**email-first** and data-driven from the customer record in `webchat-data.js`:
+
+1. **Enter your email** (any address works in the demo — it falls back to the demo customer).
+2. **One-time code** by SMS or email to confirm it's you.
+3. **Your orders are looked up** — recent delivered (returnable) orders show as cards, and any
+   **in-flight** orders are listed with carrier + status.
+4. **Pick the product** you want to return.
+5. **Why are you returning it?** (asked before the label is generated).
+6. **Confirm** → a **prepaid return label** is emailed + texted and the refund is set up.
+7. **Bigger-size offer** — the bot then offers the same item one size up, naming the
+   **nearest store with it in stock** (computed from the record), with click & collect, post-to-me,
+   or refund. Try the Seed Linen Dress (size 12 at Chadstone) vs the Nike Air Max (size up at Highpoint)
+   to see the store selection change.
+
 Watch for: the **faux inbox** (top-right) and **phone SMS toast** (bottom-right) firing on
 sends; **✅ Resolved / 👤 Routed** badges; the **deflection counter** (bottom-left); a
 post-return **cross-sell**; and the **☰ channel-consolidation callout** in the chat header.

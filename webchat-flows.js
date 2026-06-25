@@ -19,35 +19,33 @@ window.MyerWebchatFlows = (function () {
     },
 
     /* ============================================================
-       Return an item — guided flow (identify → verify by code →
-       reason → confirm label → process → offer bigger size at
-       Chadstone with pickup/send). Uses demo order M2000003.
+       Return an item — email-first guided flow:
+         email → verify by code → list recent + in-flight orders →
+         pick a product → reason → confirm label → process →
+         offer a bigger size (nearest in-stock store) → pickup/send.
+       Driven by the customer record in webchat-data.js.
        ============================================================ */
     rt_start: {
-      messages: [{ type: "text", text: "Happy to help with a return. What's the email or order number on the order?" }],
+      messages: [{ type: "text", text: "Happy to help with a return. What's the email address on your Myer account?" }],
       onEnter: (ctx) => {
-        ctx.awaitInput("rt_identify", (val) => {
-          // Demo: accept ANY email or order number. Match a real record if one
-          // exists; otherwise proceed with the demo order so the flow always works.
-          const v = val.trim();
-          const order =
-            ctx.W.lookupOrder(v) ||
-            Object.values(ctx.W.orders).find(o => o.email.toLowerCase() === v.toLowerCase()) ||
-            ctx.W.lookupOrder("M2000003");
-          ctx.demoState.order = order;
+        ctx.demoState.returnIndex = undefined;
+        ctx.awaitInput("rt_email", (val) => {
+          // Demo: accept any email; fall back to the demo customer so the
+          // flow always has recent + in-flight orders to work with.
+          ctx.demoState.customer = ctx.W.lookupCustomer(val.trim());
           ctx.goToStep("rt_verify_choice");
         });
       },
-      quickReplies: [{ label: "Use my email", next: "rt_use_email" }]
+      quickReplies: [{ label: "Use my account email", next: "rt_use_email" }]
     },
     rt_use_email: {
       messages: [],
-      onEnter: (ctx) => { ctx.demoState.order = ctx.W.lookupOrder("M2000003"); },
+      onEnter: (ctx) => { ctx.demoState.customer = ctx.W.lookupCustomer("chris@email.com"); },
       dynamicNext: () => "rt_verify_choice"
     },
     rt_verify_choice: {
       messages: [
-        { type: "text", text: "Thanks — I've found your order. To keep your details safe, I'll send you a one-time code. Where would you like it?" },
+        { type: "text", text: "Thanks — I've found your account. To keep your details safe, I'll send a one-time code before I pull up your orders. Where would you like it?" },
         { type: "note", text: "Lightweight verification — fit for order, returns and tracking. Account changes would step up to MFA." }
       ],
       quickReplies: [
@@ -58,41 +56,86 @@ window.MyerWebchatFlows = (function () {
     rt_code_sms: {
       messages: [{ type: "text", text: "Sent! Check your phone for a 6-digit code. 📱" }],
       onEnter: (ctx) => {
-        const o = ctx.demoState.order;
-        ctx.fireSms({ to: ctx.maskM(o.mobile), body: "Myer: your one-time verification code is 4–8–2–9–1–7. It expires in 10 minutes." });
+        const c = ctx.demoState.customer;
+        ctx.fireSms({ to: ctx.maskM(c.mobile), body: "Myer: your one-time verification code is 4–8–2–9–1–7. It expires in 10 minutes." });
       },
-      quickReplies: [{ label: "I've entered the code", next: "rt_verified" }]
+      quickReplies: [{ label: "I've entered the code", next: "rt_orders" }]
     },
     rt_code_email: {
       messages: [{ type: "text", text: "Sent! Check your inbox for a 6-digit code. 📩" }],
       onEnter: (ctx) => {
-        const o = ctx.demoState.order;
-        ctx.fireEmail({ to: ctx.maskE(o.email), subject: "Your Myer verification code", body: "Your one-time verification code is 482917. It expires in 10 minutes." });
+        const c = ctx.demoState.customer;
+        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer verification code", body: "Your one-time verification code is 482917. It expires in 10 minutes." });
       },
-      quickReplies: [{ label: "I've entered the code", next: "rt_verified" }]
+      quickReplies: [{ label: "I've entered the code", next: "rt_orders" }]
     },
-    rt_verified: {
-      messages: [
-        { type: "text", text: "Perfect, you're verified. ✅" },
-        { type: "text", text: "Why are you returning this item?" }
-      ],
+
+    /* ---- Email lookup result: recent (returnable) + in-flight orders ---- */
+    rt_orders: {
+      messages: [],
+      onEnter: (ctx) => {
+        const c = ctx.demoState.customer;
+        ctx.appendBubble({ role: "bot", text: `Perfect, you're verified. ✅ Welcome back, ${c.name}.` });
+        ctx.appendBubble({ role: "bot", text: "Here are your recent orders from the last 30 days:" });
+        c.recent.forEach((it) => ctx.renderCard({
+          kind: "order", id: it.id,
+          item: `${it.product} — ${it.variant}, Size ${it.size}`,
+          price: `$${it.price.toFixed(2)} · ${it.delivered}`,
+          thumb: it.thumb
+        }));
+        if (c.inflight && c.inflight.length) {
+          ctx.appendBubble({ role: "bot", text: "And these are still on their way — I'll have tracking ready if you need it:" });
+          c.inflight.forEach((it) => ctx.appendBubble({ role: "bot", text: `📦 ${it.product} — ${it.status} (${it.carrier})` }));
+        }
+        ctx.appendBubble({ role: "bot", text: "Which item would you like to return?" });
+        const chips = c.recent
+          .filter((it) => it.returnable)
+          .map((it) => ({ label: `${it.product} (Size ${it.size})`, returnItem: c.recent.indexOf(it), next: "rt_reason" }));
+        chips.push({ label: "None of these", next: "rt_none" });
+        ctx.renderQuickReplies(chips);
+      }
+    },
+    rt_none: {
+      messages: [{ type: "text", text: "No problem. If it's an in-flight order or something older than 30 days, let me know the order number and I'll take a look — or I can connect you to the team." }],
       quickReplies: [
-        { label: "Too small", next: "rt_label" },
-        { label: "Changed my mind", next: "rt_label" },
-        { label: "Faulty", next: "rt_label" },
-        { label: "Wrong item sent", next: "rt_label" }
+        { label: "Start over", next: "rt_start" },
+        { label: "That's all, thanks", next: "wc_bye" }
       ]
+    },
+
+    /* ---- Reason for return (asked before the label is generated) ---- */
+    rt_reason: {
+      messages: [],
+      onEnter: (ctx) => {
+        const it = ctx.demoState.customer.recent[ctx.demoState.returnIndex];
+        ctx.appendBubble({ role: "bot", text: `Good choice to sort it now. Why are you returning the ${it.product}?` });
+        ctx.renderQuickReplies([
+          { label: "Too small", next: "rt_label" },
+          { label: "Changed my mind", next: "rt_label" },
+          { label: "Faulty", next: "rt_label" },
+          { label: "Wrong item sent", next: "rt_label" }
+        ]);
+      }
     },
     rt_label: {
-      messages: [
-        { type: "text", text: "No worries. Here's your return summary — please check before I process it:" },
-        { type: "card", card: { kind: "order", id: "MYR-RTN-2003", item: "Seed Linen Dress — Navy, Size 10", price: "Refund $129.95", thumb: "#cdbfe0" } },
-        { type: "text", text: "I'll email and text a prepaid label once you confirm. Nothing's processed until you say go." }
-      ],
-      quickReplies: [
-        { label: "Confirm return", next: "rt_processed" },
-        { label: "Not yet", next: "rt_hold" }
-      ]
+      messages: [],
+      onEnter: (ctx) => {
+        // The chip the customer just tapped is their reason — capture it.
+        ctx.demoState.returnReason = ctx.demoState.lastChip || "";
+        const it = ctx.demoState.customer.recent[ctx.demoState.returnIndex];
+        ctx.appendBubble({ role: "bot", text: "No worries. Here's your return summary — please check before I process it:" });
+        ctx.renderCard({
+          kind: "order", id: it.id,
+          item: `${it.product} — ${it.variant}, Size ${it.size}`,
+          price: `Refund $${it.price.toFixed(2)}`,
+          thumb: it.thumb
+        });
+        ctx.appendBubble({ role: "bot", text: "I'll email and text a prepaid label once you confirm. Nothing's processed until you say go." });
+        ctx.renderQuickReplies([
+          { label: "Confirm return", next: "rt_processed" },
+          { label: "Not yet", next: "rt_hold" }
+        ]);
+      }
     },
     rt_hold: {
       messages: [{ type: "text", text: "No problem — I'll hold off. Your return isn't processed. Just pick \"Confirm return\" whenever you're ready." }],
@@ -102,53 +145,84 @@ window.MyerWebchatFlows = (function () {
       ]
     },
     rt_processed: {
-      messages: [{ type: "text", text: "Done! ✅ Your return is set up and a prepaid label is on its way to your email and phone. Your refund of $129.95 lands as soon as it's scanned. 💸" }],
+      messages: [],
       onEnter: (ctx) => {
-        const o = ctx.demoState.order;
-        ctx.fireEmail({ to: ctx.maskE(o.email), subject: "Your Myer return label", body: "Return MYR-RTN-2003 — Seed Linen Dress (Size 10). Prepaid label attached. Refund $129.95 on scan." });
-        ctx.fireSms({ to: ctx.maskM(o.mobile), body: "Myer: your prepaid return label is ready. Drop at any Aus Post. Refund $129.95 on scan." });
+        const c = ctx.demoState.customer;
+        const it = c.recent[ctx.demoState.returnIndex];
+        ctx.appendBubble({ role: "bot", text: `Done! ✅ Your return is set up and a prepaid label is on its way to your email and phone. Your refund of $${it.price.toFixed(2)} lands as soon as it's scanned. 💸` });
+        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer return label", body: `Return ${it.id} — ${it.product} (Size ${it.size}). Prepaid label attached. Refund $${it.price.toFixed(2)} on scan.` });
+        ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: your prepaid return label is ready. Drop at any Aus Post. Refund $${it.price.toFixed(2)} on scan.` });
         ctx.recordOutcome("resolved");
-      },
-      dynamicNext: () => "rt_exchange_offer"
+        ctx.goToStep("rt_exchange_offer");
+      }
     },
+
+    /* ---- Bigger-size exchange offer (after label, data-driven on stock) ---- */
     rt_exchange_offer: {
-      messages: [
-        { type: "text", text: "Before you go — would you like the same dress in a bigger size instead of a refund?" },
-        { type: "text", text: "Good news: the size 12 is in stock at Myer Chadstone — just 3.1km from your delivery address. (Also in stock at Myer Highpoint, 8.4km, and Myer Doncaster, 11km.)" }
-      ],
-      quickReplies: [
-        { label: "Pick up at Chadstone", next: "rt_pickup" },
-        { label: "Send it to me", next: "rt_send" },
-        { label: "No, just refund", next: "rt_refund_only" }
-      ]
+      messages: [],
+      onEnter: (ctx) => {
+        const it = ctx.demoState.customer.recent[ctx.demoState.returnIndex];
+        // Non-apparel or no size-up defined → straight refund path.
+        if (!it.apparel || !it.sizeUp) { ctx.goToStep("rt_refund_only"); return; }
+        const store = ctx.W.nearestInStock(it);
+        const tooSmall = ctx.demoState.returnReason === "Too small";
+        ctx.appendBubble({ role: "bot", text: tooSmall
+          ? `Let's get you the right fit rather than just sending it back — would you like the same ${it.product} in a size ${it.sizeUp} instead of a refund?`
+          : `Before you go — would you like the same ${it.product} in a bigger size (${it.sizeUp}) instead of a refund?` });
+        if (store) {
+          const others = it.stores.filter((s) => s.inStock && s !== store)
+            .map((s) => `${s.name}, ${s.km}km`).join("; ");
+          ctx.appendBubble({ role: "bot", text: `Good news: the size ${it.sizeUp} is in stock at ${store.name} — just ${store.km}km from your delivery address.${others ? ` (Also in stock at ${others}.)` : ""}` });
+          ctx.renderQuickReplies([
+            { label: `Pick up at ${store.name.replace(/^Myer /, "")}`, next: "rt_pickup" },
+            { label: "Send it to me", next: "rt_send" },
+            { label: "No, just refund", next: "rt_refund_only" }
+          ]);
+        } else {
+          ctx.appendBubble({ role: "bot", text: `The size ${it.sizeUp} isn't in any nearby store right now, but I can order it in and post it to you. Otherwise I'll go ahead with the refund.` });
+          ctx.renderQuickReplies([
+            { label: "Order it in & post to me", next: "rt_send" },
+            { label: "No, just refund", next: "rt_refund_only" }
+          ]);
+        }
+      }
     },
     rt_pickup: {
-      messages: [{ type: "text", text: "Done! Your size 12 is reserved at Myer Chadstone — collection desk, Level 2. Bring the size 10 when you collect and we'll swap it on the spot. No postage either way. I've sent the collection details to your email and phone. ✅" }],
+      messages: [],
       onEnter: (ctx) => {
-        const o = ctx.demoState.order;
-        ctx.fireEmail({ to: ctx.maskE(o.email), subject: "Your Chadstone click & collect", body: "Size 12 reserved at Myer Chadstone (collection desk, Level 2). Bring your size 10 to swap on the spot." });
-        ctx.fireSms({ to: ctx.maskM(o.mobile), body: "Myer: size 12 reserved at Chadstone, Level 2. Bring your size 10 to swap. Details emailed." });
+        const c = ctx.demoState.customer;
+        const it = c.recent[ctx.demoState.returnIndex];
+        const store = ctx.W.nearestInStock(it) || { name: "Myer Chadstone" };
+        ctx.appendBubble({ role: "bot", text: `Done! Your size ${it.sizeUp} is reserved at ${store.name} — collection desk, Level 2. Bring the size ${it.size} when you collect and we'll swap it on the spot. No postage either way. I've sent the collection details to your email and phone. ✅` });
+        ctx.fireEmail({ to: ctx.maskE(c.email), subject: `Your ${store.name} click & collect`, body: `Size ${it.sizeUp} of the ${it.product} reserved at ${store.name} (collection desk, Level 2). Bring your size ${it.size} to swap on the spot.` });
+        ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: size ${it.sizeUp} reserved at ${store.name.replace(/^Myer /, "")}, Level 2. Bring your size ${it.size} to swap. Details emailed.` });
         ctx.recordOutcome("resolved");
         ctx.renderCrossSell([
           { brand: "SEED HERITAGE", title: "Leather Ankle Boot", img: "https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/6618/6618ba15-8068-4b0b-8681-31ca7e11cb28.jpg?output-format=webp" },
           { brand: "TRENERY", title: "Wool Scarf", img: "https://content-us-5.content-cms.com/af9094ac-4ec2-4ea9-8480-e7ef2c8369de/dxresources/c743/c7436019-9f7f-405c-915e-a6c6b9a43b36.jpg?output-format=webp" }
         ]);
-      },
-      quickReplies: [{ label: "Perfect, thanks", next: "wc_bye" }]
+        ctx.renderQuickReplies([{ label: "Perfect, thanks", next: "wc_bye" }]);
+      }
     },
     rt_send: {
-      messages: [{ type: "text", text: "Done! I'll post the size 12 out to you, and your prepaid return label for the size 10 is on its way to your email and phone. No postage either way. ✅" }],
+      messages: [],
       onEnter: (ctx) => {
-        const o = ctx.demoState.order;
-        ctx.fireEmail({ to: ctx.maskE(o.email), subject: "Your Myer exchange", body: "Size 12 on its way to you; prepaid return label for size 10 attached. No postage." });
-        ctx.fireSms({ to: ctx.maskM(o.mobile), body: "Myer: size 12 is on its way; prepaid return label for size 10 sent. No postage either way." });
+        const c = ctx.demoState.customer;
+        const it = c.recent[ctx.demoState.returnIndex];
+        ctx.appendBubble({ role: "bot", text: `Done! I'll post the size ${it.sizeUp} out to you, and your prepaid return label for the size ${it.size} is on its way to your email and phone. No postage either way. ✅` });
+        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer exchange", body: `Size ${it.sizeUp} of the ${it.product} on its way to you; prepaid return label for size ${it.size} attached. No postage.` });
+        ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: size ${it.sizeUp} is on its way; prepaid return label for size ${it.size} sent. No postage either way.` });
         ctx.recordOutcome("resolved");
-      },
-      quickReplies: [{ label: "Thanks", next: "wc_bye" }]
+        ctx.renderQuickReplies([{ label: "Thanks", next: "wc_bye" }]);
+      }
     },
     rt_refund_only: {
-      messages: [{ type: "text", text: "No problem at all — we'll refund $129.95 to your original payment as soon as the dress is scanned. Thanks for shopping with Myer! 💙" }],
-      quickReplies: [{ label: "That's all, thanks", next: "wc_bye" }]
+      messages: [],
+      onEnter: (ctx) => {
+        const it = ctx.demoState.customer.recent[ctx.demoState.returnIndex];
+        ctx.appendBubble({ role: "bot", text: `No problem at all — we'll refund $${it.price.toFixed(2)} to your original payment as soon as the ${it.product} is scanned. Thanks for shopping with Myer! 💙` });
+        ctx.renderQuickReplies([{ label: "That's all, thanks", next: "wc_bye" }]);
+      }
     },
 
     /* ---- Order picker (chip-driven; sets the active order, then verifies) ---- */

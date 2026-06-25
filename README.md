@@ -60,14 +60,24 @@ Watch for: the **faux inbox** (top-right) and **phone SMS toast** (bottom-right)
 sends; **✅ Resolved / 👤 Routed** badges; the **deflection counter** (bottom-left); a
 post-return **cross-sell**; and the **☰ channel-consolidation callout** in the chat header.
 
-**Best-practice basis.** The flow follows widely-recommended returns-automation patterns: lift
-order details from the OMS up front, support **both order-level and item-level** returns, collect
-the reason with **structured options** (size/fit is ~45% of returns), and **proactively offer an
-exchange before a refund** to retain the sale (a well-designed exchange path can convert a large
-share of would-be refunds). See
+**Best-practice basis.** The flow builds in widely-recommended returns-automation patterns. Each
+maps to a concrete step you can demo:
+
+| Best practice | Where it shows up |
+|---|---|
+| Lift order details from the OMS up front | Orders are looked up straight after the code; each is a chip with date · item · total |
+| Support **order-level and item-level** returns | After picking an order: *Return the whole order* or *Just the …* a single line item |
+| **Eligibility / policy guardrail** | A 30-day-window note; the **Bonds Socks are flagged as a hygiene exclusion** and can't be selected |
+| **Structured + free-text reasons** (size/fit ≈45%) | Reason chips lead with size; **Something else** captures a typed reason |
+| **Route faulty/damaged to inspection, cover postage** | *Faulty or damaged* → photo → instant approval, free label, "flagged for inspection, not restock", with replace / refund / **keep-it + refund** for low-value items |
+| Reason-based postage | Size/exchange returns are free; change-of-mind shows the $9.95 cost (waived on store credit) |
+| **Proactive exchange before refund** | Size returns offer the swap (nearest in-stock store) before any refund |
+| **Store credit to retain revenue** | Declining the swap (or any non-size return) offers **instant store credit +10% bonus** vs a 3–5 day card refund |
+
+Sources:
 [Quickchat — Return & Exchange Chatbot Automation](https://quickchat.ai/post/return-chatbot),
 [Loop Returns — chatbots to reduce returns](https://www.loopreturns.com/blog/chatbots-ecommerce-reduce-returns-improve-customer-satisfaction/),
-and [The Retail Exec — Ecommerce Returns Best Practices](https://theretailexec.com/logistics/ecommerce-returns-best-practices/).
+[The Retail Exec — Ecommerce Returns Best Practices](https://theretailexec.com/logistics/ecommerce-returns-best-practices/).
 
 > Demo only. Simulated Agentforce-style webchat — not connected to a live Salesforce org or
 > any real system. Not affiliated with Myer. All data is mock; PII is masked in replies.

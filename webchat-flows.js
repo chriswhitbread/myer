@@ -99,7 +99,7 @@ window.MyerWebchatFlows = (function () {
       ]
     },
 
-    /* ---- Order picked: whole order, or pick a line item ---- */
+    /* ---- Order picked: eligibility check, then whole order or line item ---- */
     rt_order_detail: {
       messages: [],
       onEnter: (ctx) => {
@@ -111,9 +111,18 @@ window.MyerWebchatFlows = (function () {
           price: `$${it.price.toFixed(2)}`,
           thumb: it.thumb
         }));
-        ctx.appendBubble({ role: "bot", text: "Would you like to return the whole order, or just one of these?" });
-        const chips = o.items.map((it, i) => ({ label: `Just the ${it.product}`, returnItem: i, next: "rt_reason" }));
-        chips.unshift({ label: "Return the whole order", next: "rt_whole" });
+        // Eligibility: everything delivered in the last 30 days is in-window.
+        // Hygiene items (e.g. socks/underwear) are flagged as not returnable.
+        ctx.appendBubble({ role: "bot", text: "✓ All delivered within the last 30 days, so they're inside the returns window." });
+        const excluded = o.items.filter((it) => !ctx.W.returnableItem(it));
+        excluded.forEach((it) => ctx.appendBubble({ role: "bot", text: `🚫 Heads up: the ${it.product} is a hygiene item, so it can't be returned once opened.` }));
+        const returnable = o.items.filter((it) => ctx.W.returnableItem(it));
+        ctx.appendBubble({ role: "bot", text: "Would you like to return the whole order, or just one item?" });
+        const chips = o.items
+          .map((it, i) => ({ it, i }))
+          .filter(({ it }) => ctx.W.returnableItem(it))
+          .map(({ it, i }) => ({ label: `Just the ${it.product}`, returnItem: i, next: "rt_reason" }));
+        if (returnable.length > 1) chips.unshift({ label: "Return the whole order", next: "rt_whole" });
         ctx.renderQuickReplies(chips);
       }
     },
@@ -122,10 +131,10 @@ window.MyerWebchatFlows = (function () {
     rt_whole: {
       messages: [],
       onEnter: (ctx) => {
-        const c = ctx.demoState.customer;
-        const o = c.orders[ctx.demoState.orderIndex];
+        const o = ctx.demoState.customer.orders[ctx.demoState.orderIndex];
+        const count = o.items.filter((it) => ctx.W.returnableItem(it)).length;
         const total = ctx.W.orderTotal(o);
-        ctx.appendBubble({ role: "bot", text: `No worries — returning all ${o.items.length} items from order ${o.id} for a refund of $${total.toFixed(2)}.` });
+        ctx.appendBubble({ role: "bot", text: `No worries — returning all ${count} eligible items from order ${o.id}, $${total.toFixed(2)} in total.` });
         ctx.appendBubble({ role: "bot", text: "I'll email and text a single prepaid label covering the whole order once you confirm. Nothing's processed until you say go." });
         ctx.renderQuickReplies([
           { label: "Confirm return", next: "rt_whole_done" },
@@ -138,35 +147,55 @@ window.MyerWebchatFlows = (function () {
       onEnter: (ctx) => {
         const c = ctx.demoState.customer;
         const o = c.orders[ctx.demoState.orderIndex];
+        const count = o.items.filter((it) => ctx.W.returnableItem(it)).length;
         const total = ctx.W.orderTotal(o);
-        ctx.appendBubble({ role: "bot", text: `Done! ✅ Your return is set up and a prepaid label is on its way to your email and phone. Your refund of $${total.toFixed(2)} lands as soon as it's scanned. 💸` });
-        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer return label", body: `Return for order ${o.id} (${o.items.length} items). Prepaid label attached. Refund $${total.toFixed(2)} on scan.` });
-        ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: your prepaid return label for order ${o.id} is ready. Drop at any Aus Post. Refund $${total.toFixed(2)} on scan.` });
-        ctx.recordOutcome("resolved");
-        ctx.renderQuickReplies([{ label: "That's all, thanks", next: "wc_bye" }]);
+        ctx.appendBubble({ role: "bot", text: "Done! ✅ Your return is set up and a single prepaid label is on its way to your email and phone." });
+        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer return label", body: `Return for order ${o.id} (${count} items). Prepaid label attached.` });
+        ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: your prepaid return label for order ${o.id} is ready. Drop at any Aus Post.` });
+        // Retention: choose how to get the money back (store credit vs card).
+        ctx.demoState.refundAmount = total;
+        ctx.demoState.refundLabel = `order ${o.id}`;
+        ctx.goToStep("rt_refund_choice");
       }
     },
 
-    /* ---- Reason for return (structured options, asked before the label) ---- */
+    /* ---- Reason for return (structured options + free text; routes faulty) ---- */
     rt_reason: {
       messages: [],
       onEnter: (ctx) => {
         const it = ctx.demoState.customer.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
         ctx.appendBubble({ role: "bot", text: `Good choice to sort it now. Why are you returning the ${it.product}?` });
+        // Size/fit is ~45% of returns, so it leads. Faulty routes to a photo
+        // + inspection path; "Something else" captures a free-text reason.
         ctx.renderQuickReplies([
           { label: "Too small", next: "rt_label" },
           { label: "Too big", next: "rt_label" },
           { label: "Changed my mind", next: "rt_label" },
-          { label: "Faulty", next: "rt_label" }
+          { label: "Faulty or damaged", next: "rt_faulty" },
+          { label: "Something else", next: "rt_reason_other" }
         ]);
+      }
+    },
+    rt_reason_other: {
+      messages: [],
+      onEnter: (ctx) => {
+        ctx.appendBubble({ role: "bot", text: "No problem — tell me in your own words and I'll note it on the return." });
+        ctx.awaitInput("rt_reason_free", (val) => {
+          ctx.demoState.returnReason = val.trim() || "Other";
+          ctx.demoState.reasonIsFree = true;
+          ctx.goToStep("rt_label");
+        });
       }
     },
     rt_label: {
       messages: [],
       onEnter: (ctx) => {
-        // The chip the customer just tapped is their reason — capture it.
-        ctx.demoState.returnReason = ctx.demoState.lastChip || "";
+        // The chip the customer just tapped is their reason — capture it,
+        // unless we already captured a free-text reason.
+        if (!ctx.demoState.reasonIsFree) ctx.demoState.returnReason = ctx.demoState.lastChip || "";
+        ctx.demoState.reasonIsFree = false;
         const it = ctx.demoState.customer.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
+        const sizeReason = ctx.demoState.returnReason === "Too small" || ctx.demoState.returnReason === "Too big";
         ctx.appendBubble({ role: "bot", text: "No worries. Here's your return summary — please check before I process it:" });
         ctx.renderCard({
           kind: "order", id: ctx.demoState.customer.orders[ctx.demoState.orderIndex].id,
@@ -174,11 +203,54 @@ window.MyerWebchatFlows = (function () {
           price: `Refund $${it.price.toFixed(2)}`,
           thumb: it.thumb
         });
+        // Reason-based postage: exchanges/size returns are free (we want the
+        // item back to swap); change-of-mind is at the customer's cost.
+        ctx.appendBubble({ role: "bot", text: sizeReason
+          ? "Return postage is on us for this one. 📦"
+          : "Heads up: change-of-mind returns are $9.95 return postage (waived if you take store credit). 📦" });
         ctx.appendBubble({ role: "bot", text: "I'll email and text a prepaid label once you confirm. Nothing's processed until you say go." });
         ctx.renderQuickReplies([
           { label: "Confirm return", next: "rt_processed" },
           { label: "Not yet", next: "rt_hold" }
         ]);
+      }
+    },
+
+    /* ---- Faulty / damaged: photo → instant approval → inspection routing ---- */
+    rt_faulty: {
+      messages: [],
+      onEnter: (ctx) => {
+        ctx.demoState.returnReason = "Faulty";
+        ctx.appendBubble({ role: "bot", text: "Sorry to hear that — faulty items are free to return and we cover the postage." });
+        ctx.appendBubble({ role: "bot", text: "A quick photo lets me approve it on the spot and route it to inspection instead of restock. Want to add one?" });
+        ctx.renderQuickReplies([
+          { label: "📷 Add a photo", next: "rt_faulty_resolve" },
+          { label: "Skip the photo", next: "rt_faulty_resolve" }
+        ]);
+      }
+    },
+    rt_faulty_resolve: {
+      messages: [],
+      onEnter: (ctx) => {
+        const c = ctx.demoState.customer;
+        const it = c.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
+        ctx.appendBubble({ role: "bot", text: "Thanks — that's approved and flagged for our quality team. How would you like us to make it right?" });
+        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer faulty-item return", body: `Faulty ${it.product} (${it.id}). Free prepaid label attached; flagged for inspection, not restock.` });
+        const chips = [];
+        if (it.apparel && it.sizeUp) chips.push({ label: "Replace it (same item)", next: "rt_send" });
+        chips.push({ label: "Refund me", next: "rt_refund_choice_setup" });
+        // Low-value faulty items: keep it and refund anyway (no return postage).
+        if (it.price <= 30) chips.push({ label: "Keep it + refund", next: "rt_keep_refund" });
+        ctx.renderQuickReplies(chips);
+      }
+    },
+    rt_keep_refund: {
+      messages: [],
+      onEnter: (ctx) => {
+        const it = ctx.demoState.customer.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
+        ctx.appendBubble({ role: "bot", text: `Done — no need to send it back. We'll refund $${it.price.toFixed(2)} to your original payment in 3–5 business days. 💸` });
+        ctx.recordOutcome("resolved");
+        ctx.renderQuickReplies([{ label: "That's all, thanks", next: "wc_bye" }]);
       }
     },
     rt_hold: {
@@ -194,11 +266,16 @@ window.MyerWebchatFlows = (function () {
         const c = ctx.demoState.customer;
         const o = c.orders[ctx.demoState.orderIndex];
         const it = o.items[ctx.demoState.returnIndex];
-        ctx.appendBubble({ role: "bot", text: `Done! ✅ Your return is set up and a prepaid label is on its way to your email and phone. Your refund of $${it.price.toFixed(2)} lands as soon as it's scanned. 💸` });
-        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer return label", body: `Return ${o.id} — ${it.product} (Size ${it.size}). Prepaid label attached. Refund $${it.price.toFixed(2)} on scan.` });
-        ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: your prepaid return label is ready. Drop at any Aus Post. Refund $${it.price.toFixed(2)} on scan.` });
-        ctx.recordOutcome("resolved");
-        ctx.goToStep("rt_exchange_offer");
+        ctx.appendBubble({ role: "bot", text: "Done! ✅ Your return is set up and a prepaid label is on its way to your email and phone." });
+        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer return label", body: `Return ${o.id} — ${it.product} (Size ${it.size}). Prepaid label attached.` });
+        ctx.fireSms({ to: ctx.maskM(c.mobile), body: "Myer: your prepaid return label is ready. Drop at any Aus Post." });
+        ctx.demoState.refundAmount = it.price;
+        ctx.demoState.refundLabel = it.product;
+        // Size/fit returns → try to save the sale with a size swap first.
+        // Everything else goes straight to the refund/store-credit choice.
+        const sizeReason = ctx.demoState.returnReason === "Too small" || ctx.demoState.returnReason === "Too big";
+        if (sizeReason && it.apparel && it.sizeUp) ctx.goToStep("rt_exchange_offer");
+        else ctx.goToStep("rt_refund_choice");
       }
     },
 
@@ -207,8 +284,8 @@ window.MyerWebchatFlows = (function () {
       messages: [],
       onEnter: (ctx) => {
         const it = ctx.demoState.customer.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
-        // Non-apparel or no size-up defined → straight refund path.
-        if (!it.apparel || !it.sizeUp) { ctx.goToStep("rt_refund_only"); return; }
+        // Non-apparel or no size-up defined → straight refund/credit choice.
+        if (!it.apparel || !it.sizeUp) { ctx.goToStep("rt_refund_choice"); return; }
         const store = ctx.W.nearestInStock(it);
         const tooSmall = ctx.demoState.returnReason === "Too small";
         ctx.appendBubble({ role: "bot", text: tooSmall
@@ -221,13 +298,13 @@ window.MyerWebchatFlows = (function () {
           ctx.renderQuickReplies([
             { label: `Pick up at ${store.name.replace(/^Myer /, "")}`, next: "rt_pickup" },
             { label: "Send it to me", next: "rt_send" },
-            { label: "No, just refund", next: "rt_refund_only" }
+            { label: "No, just refund", next: "rt_refund_choice" }
           ]);
         } else {
-          ctx.appendBubble({ role: "bot", text: `The size ${it.sizeUp} isn't in any nearby store right now, but I can order it in and post it to you. Otherwise I'll go ahead with the refund.` });
+          ctx.appendBubble({ role: "bot", text: `The size ${it.sizeUp} isn't in any nearby store right now, but I can order it in and post it to you. Otherwise I'll sort your refund.` });
           ctx.renderQuickReplies([
             { label: "Order it in & post to me", next: "rt_send" },
-            { label: "No, just refund", next: "rt_refund_only" }
+            { label: "No, just refund", next: "rt_refund_choice" }
           ]);
         }
       }
@@ -254,18 +331,63 @@ window.MyerWebchatFlows = (function () {
       onEnter: (ctx) => {
         const c = ctx.demoState.customer;
         const it = c.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
-        ctx.appendBubble({ role: "bot", text: `Done! I'll post the size ${it.sizeUp} out to you, and your prepaid return label for the size ${it.size} is on its way to your email and phone. No postage either way. ✅` });
-        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer exchange", body: `Size ${it.sizeUp} of the ${it.product} on its way to you; prepaid return label for size ${it.size} attached. No postage.` });
-        ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: size ${it.sizeUp} is on its way; prepaid return label for size ${it.size} sent. No postage either way.` });
+        const faulty = ctx.demoState.returnReason === "Faulty";
+        if (faulty) {
+          ctx.appendBubble({ role: "bot", text: `Done! A brand-new ${it.product} (size ${it.size}) is on its way out to you, and your free prepaid return label for the faulty one is on its way to your email and phone. ✅` });
+          ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer replacement", body: `Replacement ${it.product} (size ${it.size}) on its way; free prepaid return label for the faulty item attached.` });
+          ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: a replacement ${it.product} is on its way; free prepaid return label sent. No postage.` });
+        } else {
+          ctx.appendBubble({ role: "bot", text: `Done! I'll post the size ${it.sizeUp} out to you, and your prepaid return label for the size ${it.size} is on its way to your email and phone. No postage either way. ✅` });
+          ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer exchange", body: `Size ${it.sizeUp} of the ${it.product} on its way to you; prepaid return label for size ${it.size} attached. No postage.` });
+          ctx.fireSms({ to: ctx.maskM(c.mobile), body: `Myer: size ${it.sizeUp} is on its way; prepaid return label for size ${it.size} sent. No postage either way.` });
+        }
         ctx.recordOutcome("resolved");
         ctx.renderQuickReplies([{ label: "Thanks", next: "wc_bye" }]);
       }
     },
-    rt_refund_only: {
+    /* ---- Refund vs store credit (retention: instant credit + bonus) ----
+       refundAmount / refundLabel are set by whichever step routes here
+       (single item, whole order, or exchange-declined). ------------------ */
+    rt_refund_choice_setup: {
       messages: [],
       onEnter: (ctx) => {
         const it = ctx.demoState.customer.orders[ctx.demoState.orderIndex].items[ctx.demoState.returnIndex];
-        ctx.appendBubble({ role: "bot", text: `No problem at all — we'll refund $${it.price.toFixed(2)} to your original payment as soon as the ${it.product} is scanned. Thanks for shopping with Myer! 💙` });
+        ctx.demoState.refundAmount = it.price;
+        ctx.demoState.refundLabel = it.product;
+      },
+      dynamicNext: () => "rt_refund_choice"
+    },
+    rt_refund_choice: {
+      messages: [],
+      onEnter: (ctx) => {
+        const amt = ctx.demoState.refundAmount || 0;
+        const credit = amt * 1.1;
+        ctx.appendBubble({ role: "bot", text: "How would you like your money back?" });
+        ctx.appendBubble({ role: "bot", text: `• Store credit — instant once scanned, and I'll add a 10% bonus, so $${credit.toFixed(2)}.\n• Original payment — $${amt.toFixed(2)} back to your card in 3–5 business days.` });
+        ctx.renderQuickReplies([
+          { label: `Store credit +10% ($${credit.toFixed(2)})`, next: "rt_credit" },
+          { label: "Refund to my card", next: "rt_refund_card" }
+        ]);
+      }
+    },
+    rt_credit: {
+      messages: [],
+      onEnter: (ctx) => {
+        const c = ctx.demoState.customer;
+        const amt = ctx.demoState.refundAmount || 0;
+        const credit = amt * 1.1;
+        ctx.appendBubble({ role: "bot", text: `Lovely — $${credit.toFixed(2)} in store credit (including your 10% bonus) lands the moment your ${ctx.demoState.refundLabel} is scanned. It's ready to use online and in store. 💳` });
+        ctx.fireEmail({ to: ctx.maskE(c.email), subject: "Your Myer store credit", body: `Store credit of $${credit.toFixed(2)} (incl. 10% bonus) for your ${ctx.demoState.refundLabel} return. Applied on scan.` });
+        ctx.recordOutcome("resolved");
+        ctx.renderQuickReplies([{ label: "Perfect, thanks", next: "wc_bye" }]);
+      }
+    },
+    rt_refund_card: {
+      messages: [],
+      onEnter: (ctx) => {
+        const amt = ctx.demoState.refundAmount || 0;
+        ctx.appendBubble({ role: "bot", text: `No problem — we'll refund $${amt.toFixed(2)} to your original payment in 3–5 business days once your ${ctx.demoState.refundLabel} is scanned. Thanks for shopping with Myer! 💙` });
+        ctx.recordOutcome("resolved");
         ctx.renderQuickReplies([{ label: "That's all, thanks", next: "wc_bye" }]);
       }
     },

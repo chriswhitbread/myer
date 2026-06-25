@@ -56,7 +56,7 @@ window.MyerWebchat = (function () {
               thumb: "#c9b89a", apparel: true, sizeUp: "L",
               stores: [{ name: "Myer Chadstone", km: 3.1, inStock: true }] },
             { product: "Bonds Socks 3-pack", variant: "Black", size: "One size", price: 24.95,
-              thumb: "#cfd3d8", apparel: false }
+              thumb: "#cfd3d8", apparel: false, returnable: false, exclusion: "hygiene" }
           ]
         },
         {
@@ -96,9 +96,13 @@ window.MyerWebchat = (function () {
     // the email-first return flow always has orders to work with.
     return customers[key] || customers["chris@email.com"];
   }
-  // Total value of an order (sum of its line items).
+  // Total value of an order's *returnable* line items (excludes hygiene etc).
   function orderTotal(order) {
-    return (order.items || []).reduce((sum, it) => sum + it.price, 0);
+    return (order.items || []).filter(returnableItem).reduce((sum, it) => sum + it.price, 0);
+  }
+  // An item is returnable unless explicitly flagged otherwise (e.g. hygiene).
+  function returnableItem(item) {
+    return item && item.returnable !== false;
   }
   // Nearest store that has the size-up in stock, or null.
   function nearestInStock(item) {
@@ -122,5 +126,5 @@ window.MyerWebchat = (function () {
     return inventory.some((i) => i.product === product && i.size === size && i.store === store && i.inStock);
   }
 
-  return { orders, inventory, customers, maskEmail, maskMobile, lookupOrder, checkInventory, lookupCustomer, orderTotal, nearestInStock };
+  return { orders, inventory, customers, maskEmail, maskMobile, lookupOrder, checkInventory, lookupCustomer, orderTotal, returnableItem, nearestInStock };
 })();

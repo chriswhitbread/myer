@@ -78,12 +78,31 @@ img { display: block; max-width: 100%; height: auto; }
 }
 
 /* Logo */
+.logo-group {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .logo {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
 }
 .logo svg { display: block; }
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #fff;
+  background: #0d9dda;
+  padding: 4px 9px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
 
 /* Search bar */
 .search {

@@ -19,25 +19,19 @@
   }
 
   root.innerHTML = `
-    <button class="mw-launcher" id="mw-launcher" aria-label="Open Myer Concierge — need help?" title="Need help?">
+    <button class="mw-launcher" id="mw-launcher" aria-label="Open Myer Concierge" title="Myer Concierge">
       <span class="mw-launcher__circle">
         <svg class="mw-launcher__icon" width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g opacity="0.7"><path opacity="0.9" d="M26.25 11.3148H24.375V16.0023C24.375 18.5908 22.2759 20.6898 19.6875 20.6898H11.25V22.5648C11.25 24.6358 12.9291 26.3148 15 26.3148H20.625L24.7125 29.7179C25.11 30.0489 25.7016 29.9954 26.0325 29.5979C26.1731 29.4292 26.25 29.2164 26.25 28.9961V26.3148C28.3209 26.3148 30 24.6358 30 22.5648V15.0648C30 12.9939 28.3209 11.3148 26.25 11.3148Z" fill="white"/></g><path d="M18.75 0.0648193H3.75C1.67906 0.0648193 0 1.74388 0 3.81482V15.0648C0 17.1358 1.67906 18.8148 3.75 18.8148V22.4054C3.75 22.9229 4.17 23.3429 4.6875 23.3429C4.91063 23.3429 5.12719 23.2633 5.29688 23.1179L10.3125 18.8148H18.75C20.8209 18.8148 22.5 17.1358 22.5 15.0648V3.81482C22.5 1.74388 20.8209 0.0648193 18.75 0.0648193Z" fill="white"/></svg>
       </span>
-      <span class="mw-launcher__label">Need help?</span>
     </button>
     <section class="mw-window" id="mw-window" aria-hidden="true">
       <header class="mw-header">
         <div class="mw-header__id">
-          <span class="mw-header__logo">MYER</span>
-          <div>
-            <div class="mw-header__title">Myer Concierge</div>
-            <div class="mw-header__status"><span class="mw-status-dot"></span>Online now</div>
-          </div>
+          <div class="mw-header__title">Myer Concierge</div>
         </div>
         <div class="mw-header__actions">
-          <button class="mw-iconbtn" id="mw-callout-btn" title="Channel consolidation" aria-label="Channel consolidation">☰</button>
           <button class="mw-iconbtn" id="mw-reset" title="Restart demo" aria-label="Restart">↻</button>
-          <button class="mw-iconbtn" id="mw-close" title="Close" aria-label="Close">✕</button>
+          <button class="mw-iconbtn mw-iconbtn--chevron" id="mw-close" title="Minimise" aria-label="Minimise">⌄</button>
         </div>
       </header>
       <div class="mw-messages" id="mw-messages"></div>
@@ -80,30 +74,75 @@
 
   function scrollDown() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 
-  // ---- Demo UI: faux inbox, phone toast, deflection counter, badges, cross-sell, callout ----
+  // ---- Demo UI: simulated iPhone (2FA), Mail app, deflection counter, badges, cross-sell, callout ----
   (function setupDemoUI() {
-    const inbox = document.createElement("div"); inbox.id = "mw-inbox"; inbox.className = "mw-inbox";
-    inbox.innerHTML = `<div class="mw-inbox__head">📧 Inbox <span class="mw-inbox__sub">demo</span></div><div class="mw-inbox__list" id="mw-inbox-list"></div>`;
-    const phone = document.createElement("div"); phone.id = "mw-phone-toast"; phone.className = "mw-phone-toast";
+    // iPhone mock-up: a lock screen (notifications) and an in-phone Mail app.
+    // Tapping a Mail notification opens the Mail app *inside* the phone.
+    const phone = document.createElement("div"); phone.id = "mw-phone"; phone.className = "mw-phone";
+    phone.innerHTML = `
+      <div class="mw-phone__screen">
+        <div class="mw-phone__statusbar"><span>9:41</span><span class="mw-phone__sig">5G &nbsp;&#9737;</span></div>
+        <div class="mw-phone__lock" id="mw-phone-lock">
+          <div class="mw-phone__time">9:41</div>
+          <div class="mw-phone__date">Today</div>
+          <div class="mw-phone__notifs" id="mw-phone-notifs"></div>
+        </div>
+        <div class="mw-phone__mail" id="mw-phone-mail">
+          <div class="mw-mail__bar"><button class="mw-mail__back" id="mw-mail-back">&#8249; Inbox</button><span class="mw-mail__appname">Mail</span></div>
+          <div class="mw-mail__list" id="mw-mail-list"></div>
+        </div>
+      </div>
+      <div class="mw-phone__bar"></div>`;
+
     const counter = document.createElement("div"); counter.id = "mw-counter"; counter.className = "mw-counter";
     counter.textContent = "0 of 0 enquiries resolved without an agent";
-    document.body.appendChild(inbox); document.body.appendChild(phone); document.body.appendChild(counter);
+    document.body.appendChild(phone); document.body.appendChild(counter);
+
+    // Open / close the in-phone Mail app.
+    function openMailApp() { phone.classList.add("mw-phone--mailopen"); }
+    function closeMailApp() { phone.classList.remove("mw-phone--mailopen"); }
+    phone.addEventListener("click", (e) => {
+      if (e.target.closest("#mw-mail-back")) { closeMailApp(); return; }
+      // Tapping a Mail notification opens the Mail app.
+      const notif = e.target.closest(".mw-phone__notif--mail");
+      if (notif) openMailApp();
+    });
+
+    // Push a notification onto the iPhone lock screen (Messages or Mail).
+    function pushPhoneNotif(kind, appHtml, title, body) {
+      phone.classList.add("mw-phone--show");
+      const notifs = document.getElementById("mw-phone-notifs");
+      notifs.querySelectorAll(".mw-phone__notif").forEach((n) => n.classList.remove("is-new"));
+      const n = document.createElement("div");
+      n.className = "mw-phone__notif is-new" + (kind === "mail" ? " mw-phone__notif--mail" : "");
+      const hint = kind === "mail" ? `<div class="mw-phone__notif-hint">Tap to open in Mail</div>` : "";
+      n.innerHTML = `<div class="mw-phone__notif-head"><span class="mw-phone__notif-app">${appHtml}</span><span class="mw-phone__notif-when">now</span></div><div class="mw-phone__notif-from">${esc(title)}</div><div class="mw-phone__notif-body">${esc(body)}</div>${hint}`;
+      notifs.prepend(n);
+    }
 
     window.MyerDemoUI = {
       email(msg) {
-        const list = document.getElementById("mw-inbox-list");
-        const item = document.createElement("div"); item.className = "mw-inbox__item";
-        item.innerHTML = `<div class="mw-inbox__from">Myer &lt;noreply@myer.com.au&gt;</div><div class="mw-inbox__subj">${esc(msg.subject)}</div><div class="mw-inbox__to">to ${esc(msg.to)}</div><div class="mw-inbox__body">${esc(msg.body)}</div>`;
-        list.prepend(item); inbox.classList.add("mw-inbox--show");
+        // 1) Add the email to the in-phone Mail app inbox (newest on top).
+        const list = document.getElementById("mw-mail-list");
+        list.querySelectorAll(".mw-mail__item").forEach((n) => n.classList.remove("is-new"));
+        const item = document.createElement("div"); item.className = "mw-mail__item is-new";
+        // Optional PDF attachment (e.g. the prepaid return label).
+        const attach = msg.attachment ? `<div class="mw-attach">
+            <div class="mw-attach__icon"><span class="mw-attach__fold"></span><span class="mw-attach__tag">PDF</span></div>
+            <div class="mw-attach__meta"><div class="mw-attach__name">${esc(msg.attachment.name)}</div><div class="mw-attach__size">${esc(msg.attachment.size)}</div></div>
+          </div>` : "";
+        item.innerHTML = `<div class="mw-mail__row"><span class="mw-mail__sender">Myer</span><span class="mw-mail__when">now</span></div><div class="mw-mail__subj">${esc(msg.subject)}</div><div class="mw-mail__to">to ${esc(msg.to)}</div><div class="mw-mail__snippet">${esc(msg.body)}</div>${attach}`;
+        list.prepend(item);
+        // 2) Show a tappable Mail notification on the lock screen.
+        pushPhoneNotif("mail", `&#9993;&#65039; MAIL`, "Myer", msg.subject);
       },
       sms(msg) {
-        phone.innerHTML = `<div class="mw-phone-toast__app">Messages · now</div><div class="mw-phone-toast__from">MYER</div><div class="mw-phone-toast__body">${esc(msg.body)}</div><div class="mw-phone-toast__to">${esc(msg.to)}</div>`;
-        phone.classList.add("mw-phone-toast--show");
-        clearTimeout(phone._t); phone._t = setTimeout(() => phone.classList.remove("mw-phone-toast--show"), 6000);
+        // iPhone lock-screen receives a Messages notification with the code.
+        pushPhoneNotif("sms", `&#128172; MESSAGES`, "MYER", msg.body);
       },
       badge(kind) {
         const row = document.createElement("div"); row.className = "mw-row mw-row--bot";
-        const label = kind === "resolved" ? "✅ Resolved instantly" : "👤 Routed to specialist";
+        const label = kind === "resolved" ? "Resolved instantly" : "Routed to specialist";
         row.innerHTML = `<div class="mw-badge mw-badge--${esc(kind)}">${label}</div>`;
         messagesEl.appendChild(row); scrollDown();
       },
@@ -121,7 +160,7 @@
         let el = document.getElementById("mw-callout");
         if (el) { el.remove(); return; }
         el = document.createElement("div"); el.id = "mw-callout"; el.className = "mw-callout";
-        el.innerHTML = `<button class="mw-callout__x" aria-label="Close">✕</button><h4>One chat — not five systems</h4><p>This whole journey happened in a single Agentforce chat, replacing the current spread:</p><ul><li>Genesys / Oration</li><li>Freshdesk</li><li>BSP</li><li>ShipIT</li></ul>`;
+        el.innerHTML = `<button class="mw-callout__x" aria-label="Close">✕</button><h4>One chat, not five systems</h4><p>This whole journey happened in a single Agentforce chat, replacing the current spread:</p><ul><li>Genesys / Oration</li><li>Freshdesk</li><li>BSP</li><li>ShipIT</li></ul>`;
         document.body.appendChild(el);
         el.querySelector(".mw-callout__x").addEventListener("click", () => el.remove());
       }
@@ -159,15 +198,38 @@
   // Remove the specific indicator returned by showTyping(); avoids races between overlapping playbacks.
   function hideTyping(el) { if (el && el.parentNode) el.remove(); }
 
+  // Tracks the chips currently offered to the user, so typed replies that match
+  // a visible chip label can be routed the same way a click would be.
+  let activeQuickReplies = [];
   function clearQuickReplies() {
     messagesEl.querySelectorAll(".mw-quickreplies").forEach((n) => n.remove());
+    activeQuickReplies = [];
+  }
+
+  // Match typed text against a currently-rendered chip. Exact (case-insensitive)
+  // match wins; otherwise a single unambiguous substring match. Returns null if
+  // there's no match or the match is ambiguous, so the caller can fall through.
+  function matchQuickReply(text) {
+    if (!activeQuickReplies.length) return null;
+    const t = text.trim().toLowerCase();
+    if (!t) return null;
+    const exact = activeQuickReplies.find((qr) => qr.label.trim().toLowerCase() === t);
+    if (exact) return exact;
+    const partial = activeQuickReplies.filter((qr) => {
+      const l = qr.label.trim().toLowerCase();
+      return l.includes(t) || t.includes(l);
+    });
+    return partial.length === 1 ? partial[0] : null;
   }
 
   // Shared chip-click behaviour. A quick reply may carry an optional `order`
-  // (an order number) — picking it sets the active order before navigating,
+  // (an order number); picking it sets the active order before navigating,
   // which lets the opening menu offer demo orders as clickable chips.
   function handleChip(qr) {
     clearQuickReplies();
+    // Clicking a chip is an explicit choice, so drop any awaited typed input
+    // so a step's onEnter awaitInput handler can't fire after navigating away.
+    pendingInput = null;
     if (qr.label !== "(continue)") appendBubble({ role: "customer", text: qr.label });
     if (qr.order && window.MyerWebchat) {
       demoState.order = window.MyerWebchat.lookupOrder(qr.order) || null;
@@ -177,12 +239,21 @@
 
   function renderQuickReplies(replies) {
     if (!replies || !replies.length) return;
+    activeQuickReplies = replies;
     const wrap = document.createElement("div");
     wrap.className = "mw-quickreplies";
     replies.forEach((qr) => {
       const btn = document.createElement("button");
       btn.className = "mw-chip";
-      btn.textContent = qr.label;
+      if (qr.desc) {
+        // Two-line chip: bold-ish label on top, muted product summary beneath.
+        btn.classList.add("mw-chip--detailed");
+        const main = document.createElement("span"); main.className = "mw-chip__label"; main.textContent = qr.label;
+        const sub = document.createElement("span"); sub.className = "mw-chip__desc"; sub.textContent = qr.desc;
+        btn.appendChild(main); btn.appendChild(sub);
+      } else {
+        btn.textContent = qr.label;
+      }
       btn.addEventListener("click", () => handleChip(qr));
       wrap.appendChild(btn);
     });
@@ -192,9 +263,24 @@
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+  // Show the typing indicator for a short, slightly-randomised beat (scaled to
+  // message length), then render the bot bubble. Mirrors the Agentforce /
+  // Salesforce messenger feel where the agent "types" before each reply.
+  async function botSay(text) {
+    const typingEl = showTyping();
+    const base = 500;
+    const perChar = Math.min((String(text).length || 0) * 14, 900);
+    await sleep(base + perChar);
+    hideTyping(typingEl);
+    const bubble = appendBubble({ role: currentSpeaker, text });
+    await sleep(140);
+    return bubble;
+  }
+
   // The welcome step renders as a single bordered "intro card" (greeting text +
   // option pills grouped together with the avatar), matching the real Myer Concierge.
   function renderIntroCard(step) {
+    activeQuickReplies = step.quickReplies || [];
     const row = document.createElement("div");
     row.className = "mw-row mw-row--bot mw-intro-row";
     const card = document.createElement("div");
@@ -231,9 +317,9 @@
       renderIntroCard(step);
       if (typeof step.onEnter === "function") {
         const _W = window.MyerWebchat || {};
-        step.onEnter({ demoState, goToStep, appendBubble, awaitInput, fireEmail, fireSms, recordOutcome,
+        await step.onEnter({ demoState, goToStep, appendBubble, botSay, awaitInput, fireEmail, fireSms, recordOutcome,
           W: _W, maskE: _W.maskEmail, maskM: _W.maskMobile,
-          renderQuickReplies, renderCrossSell });
+          renderQuickReplies, renderCrossSell, renderCard });
       }
       return;
     }
@@ -253,9 +339,9 @@
     }
     if (typeof step.onEnter === "function") {
       const _W = window.MyerWebchat || {};
-      step.onEnter({ demoState, goToStep, appendBubble, awaitInput, fireEmail, fireSms, recordOutcome,
+      await step.onEnter({ demoState, goToStep, appendBubble, botSay, awaitInput, fireEmail, fireSms, recordOutcome,
         W: _W, maskE: _W.maskEmail, maskM: _W.maskMobile,
-        renderQuickReplies, renderCrossSell });
+        renderQuickReplies, renderCrossSell, renderCard });
     }
     if (typeof step.dynamicNext === "function") {
       const nx = step.dynamicNext({ demoState, W: window.MyerWebchat });
@@ -269,22 +355,24 @@
     wrap.className = "mw-row mw-row--" + currentSpeaker;
     let html = "";
     if (card.kind === "order") {
+      const thumbStyle = card.img
+        ? `background-image:url('${encodeURI(card.img)}');background-size:cover;background-position:center`
+        : `background:${safeColor(card.thumb)}`;
       html = `<div class="mw-card">
         <div class="mw-card__order">
-          <div class="mw-card__thumb" style="background:${safeColor(card.thumb)}"></div>
+          <div class="mw-card__thumb" style="${thumbStyle}"></div>
           <div><div class="mw-card__title">${esc(card.item)}</div>
           <div class="mw-card__meta">Order ${esc(card.id)}</div>
           <div class="mw-card__price">${esc(card.price)}</div></div>
         </div></div>`;
     } else if (card.kind === "stock") {
       const rows = card.stores.map((s) => {
-        const icon = s.status === "in" ? "✅" : s.status === "low" ? "⚠️" : "❌";
         const txt = s.status === "in" ? "In stock" : s.status === "low" ? "Low stock" : "Out of stock";
-        return `<div class="mw-stock__row"><span>${icon} ${esc(s.name)}</span><span class="mw-stock__txt">${txt}</span></div>`;
+        return `<div class="mw-stock__row"><span><span class="mw-dot mw-dot--${esc(s.status)}"></span>${esc(s.name)}</span><span class="mw-stock__txt mw-stock__txt--${esc(s.status)}">${txt}</span></div>`;
       }).join("");
       html = `<div class="mw-card">
         <div class="mw-card__title">${esc(card.item)}</div>
-        <div class="mw-card__online">🟢 ${esc(card.online)}</div>
+        <div class="mw-card__online"><span class="mw-dot mw-dot--in"></span>${esc(card.online)}</div>
         <div class="mw-stock">${rows}</div></div>`;
     } else if (card.kind === "tracking") {
       const steps = card.steps.map((s) => `<div class="mw-track__step ${s.done ? "is-done" : ""}"><span class="mw-track__dot"></span>${esc(s.label)}</div>`).join("");
@@ -314,11 +402,22 @@
     const text = input.value.trim();
     if (!text) return;
     input.value = "";
+    // Capture any chip the typed text matches BEFORE clearQuickReplies wipes them.
+    const chipMatch = pendingInput ? null : matchQuickReply(text);
     clearQuickReplies();
     appendBubble({ role: "customer", text });
     if (pendingInput) {
       const handler = pendingInput; pendingInput = null;
       handler.onValue(text);
+      return;
+    }
+    // A typed reply that matches a visible chip is routed like a click, but
+    // without re-echoing the chip label, since we've already shown what they typed.
+    if (chipMatch) {
+      if (chipMatch.order && window.MyerWebchat) {
+        demoState.order = window.MyerWebchat.lookupOrder(chipMatch.order) || demoState.order;
+      }
+      goToStep(chipMatch.next);
       return;
     }
     const stepId = C.matchKeyword(text);
@@ -328,8 +427,8 @@
       const fbTyping = showTyping();
       setTimeout(() => {
         hideTyping(fbTyping);
-        appendBubble({ role: "bot", text: "I can help with returns, stock checks, order tracking, MYER one rewards, or connect you to a person. What would you like to do?" });
-        renderQuickReplies(C.steps.welcome.quickReplies);
+        appendBubble({ role: "bot", text: "I can help with deliveries, returns, stock checks, MYER one rewards, or connect you to a person. What would you like to do?" });
+        renderQuickReplies(getStep(WF.entryStepId || C.welcomeStepId).quickReplies || C.steps.welcome.quickReplies);
       }, 650);
     }
   });
@@ -337,6 +436,14 @@
   function reset() {
     messagesEl.innerHTML = "";
     resetSpeaker();
+    demoState.order = null; demoState.lineItem = null;
+    // Clear the simulated phone so a restart starts from a clean slate.
+    const phoneNotifs = document.getElementById("mw-phone-notifs");
+    const mailList = document.getElementById("mw-mail-list");
+    if (phoneNotifs) phoneNotifs.innerHTML = "";
+    if (mailList) mailList.innerHTML = "";
+    const phoneEl = document.getElementById("mw-phone");
+    if (phoneEl) phoneEl.classList.remove("mw-phone--show", "mw-phone--mailopen");
     goToStep((window.MyerWebchatFlows && window.MyerWebchatFlows.entryStepId) || C.welcomeStepId);
   }
   document.getElementById("mw-reset").addEventListener("click", reset);

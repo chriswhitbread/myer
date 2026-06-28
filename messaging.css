@@ -1,10 +1,10 @@
-/* messaging widget styles — Myer Concierge restyle */
+/* messaging widget styles: Myer Concierge restyle */
 :root { --mw-black: #000; --mw-red: #c8102e; --mw-bot: #f1f1f3; }
 
 /* ---- Launcher ---- */
 .mw-launcher {
   position: fixed; left: 24px; bottom: 24px; z-index: 9999;
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center;
   cursor: pointer; background: transparent; border: 0; padding: 0;
 }
 .mw-launcher__circle {
@@ -13,11 +13,6 @@
   box-shadow: 0 6px 20px rgba(0,0,0,0.35); flex: 0 0 72px;
 }
 .mw-launcher__icon { display: block; }
-.mw-launcher__label {
-  background: #ececec; color: #1f1f1f; font-size: 13px; font-weight: 500;
-  padding: 9px 16px; border-radius: 20px; white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-}
 .mw-launcher--hidden { display: none; }
 
 /* ---- Window ---- */
@@ -30,15 +25,14 @@
 .mw-window--open { display: flex; }
 
 /* ---- Header ---- */
-.mw-header { background: #000; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+.mw-header { position: relative; background: #000; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
 .mw-header__id { display: flex; align-items: center; gap: 12px; }
-.mw-header__logo { font-weight: 800; letter-spacing: 1px; font-size: 18px; }
-.mw-header__title { font-weight: 700; font-size: 15px; }
-.mw-header__status { font-size: 12px; opacity: 0.85; display: flex; align-items: center; gap: 6px; }
-.mw-status-dot { width: 8px; height: 8px; background: #2ecc71; border-radius: 50%; display: inline-block; }
+.mw-header__title { font-weight: 700; font-size: 16px; }
 .mw-header__actions { display: flex; gap: 6px; }
-.mw-iconbtn { background: rgba(255,255,255,0.15); color: #fff; border: 0; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px; }
+.mw-iconbtn { background: rgba(255,255,255,0.15); color: #fff; border: 0; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; line-height: 1; }
 .mw-iconbtn:hover { background: rgba(255,255,255,0.3); }
+.mw-iconbtn--chevron { background: transparent; font-size: 20px; }
+.mw-iconbtn--chevron:hover { background: rgba(255,255,255,0.15); }
 
 /* ---- Messages ---- */
 .mw-messages { flex: 1; overflow-y: auto; padding: 16px; background: #fafafa; display: flex; flex-direction: column; gap: 10px; }
@@ -69,23 +63,30 @@
 /* ---- Quick-reply chips: outlined white pills ---- */
 .mw-quickreplies { display: flex; flex-wrap: wrap; gap: 8px; align-self: flex-start; margin-top: 2px; }
 .mw-chip {
-  background: #fff; color: #1f1f1f; border: 1px solid #ccc;
-  border-radius: 18px; padding: 8px 14px; font-size: 13px; font-weight: 500; cursor: pointer;
+  background: #fff; color: #1f1f1f; border: 1px solid #d0d0d4;
+  border-radius: 22px; padding: 10px 16px; font-size: 13.5px; font-weight: 500; cursor: pointer;
 }
-.mw-chip:hover { background: #f0f0f0; border-color: #bbb; }
+.mw-chip:hover { background: #f5f5f6; border-color: #bbb; }
+/* Two-line "detailed" chip: order line + product summary beneath */
+.mw-chip--detailed { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; width: 100%; padding: 11px 16px; border-radius: 14px; }
+.mw-chip__label { font-weight: 600; font-size: 13.5px; }
+.mw-chip__desc { font-size: 12px; color: #767676; font-weight: 400; line-height: 1.35; }
 
 /* ---- Welcome intro card (greeting + options grouped, like real Myer Concierge) ---- */
 .mw-intro-row { align-items: flex-start; }
 .mw-intro-card {
-  background: #fff; border: 1px solid #e3e3e3; border-radius: 12px;
-  padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  display: flex; flex-direction: column; gap: 10px; max-width: 300px;
+  background: #fff; border: 1px solid #e7e7ea; border-radius: 14px;
+  padding: 16px 16px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  display: flex; flex-direction: column; gap: 6px; max-width: 312px;
 }
-.mw-intro-card__text { font-size: 14px; line-height: 1.45; color: #1a1a1a; margin: 0; }
+.mw-intro-card__text { font-size: 14.5px; line-height: 1.5; color: #1a1a1a; margin: 0; }
 .mw-chip--intro {
-  width: 100%; text-align: center; border-radius: 22px; padding: 11px 14px; font-size: 13px;
+  width: 100%; text-align: center; border: 1px solid #d0d0d4; border-radius: 24px;
+  padding: 13px 14px; font-size: 13.5px; font-weight: 500; color: #1a1a1a; background: #fff;
 }
-.mw-chip--intro:first-of-type { margin-top: 4px; }
+.mw-chip--intro:hover { background: #f5f5f6; border-color: #bbb; }
+.mw-chip--intro:first-of-type { margin-top: 10px; }
+.mw-chip--intro + .mw-chip--intro { margin-top: 2px; }
 
 /* ---- Typing indicator ---- */
 .mw-typing { display: flex; gap: 4px; align-items: center; }
@@ -101,9 +102,18 @@
 .mw-card__title { font-weight: 700; margin-bottom: 3px; }
 .mw-card__meta { color: #6b6b6b; font-size: 12px; }
 .mw-card__price { font-weight: 700; color: #000; margin-top: 3px; }
-.mw-card__online { color: #1f8a4c; margin: 6px 0 10px; font-weight: 600; }
-.mw-stock__row { display: flex; justify-content: space-between; padding: 6px 0; border-top: 1px solid #f0f0f0; }
-.mw-stock__txt { color: #6b6b6b; }
+.mw-card__online { color: #1f8a4c; margin: 6px 0 10px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+.mw-stock__row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid #f0f0f0; }
+.mw-stock__row > span:first-child { display: flex; align-items: center; gap: 7px; }
+.mw-stock__txt { color: #6b6b6b; white-space: nowrap; }
+.mw-stock__txt--in { color: #1f8a4c; }
+.mw-stock__txt--low { color: #b8860b; }
+.mw-stock__txt--out { color: #c8102e; }
+/* Coloured status dots replace the old emoji stock indicators */
+.mw-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: 0 0 9px; }
+.mw-dot--in { background: #1f8a4c; }
+.mw-dot--low { background: #e0a106; }
+.mw-dot--out { background: #c8102e; }
 .mw-track { margin-top: 10px; }
 .mw-track__step { display: flex; align-items: center; gap: 10px; padding: 5px 0; color: #b0b0b8; font-weight: 600; }
 .mw-track__step.is-done { color: #1a1a1a; }
@@ -115,22 +125,67 @@
 .mw-rewards__lbl { font-size: 12px; color: #6b6b6b; }
 
 /* ---- Demo UI ---- */
-.mw-inbox { position: fixed; top: 90px; right: 24px; width: 280px; max-height: 60vh; background: #fff; border: 1px solid #e3e3e3; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.18); z-index: 9998; overflow: hidden; transform: translateY(8px); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; }
-.mw-inbox--show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-.mw-inbox__head { background: #000; color: #fff; padding: 10px 14px; font-weight: 600; font-size: 14px; }
-.mw-inbox__sub { float: right; font-size: 11px; opacity: .6; font-weight: 400; }
-.mw-inbox__list { overflow-y: auto; max-height: calc(60vh - 40px); }
-.mw-inbox__item { padding: 12px 14px; border-bottom: 1px solid #f0f0f0; font-size: 12px; }
-.mw-inbox__from { color: #767676; font-size: 11px; }
-.mw-inbox__subj { font-weight: 700; margin: 2px 0; }
-.mw-inbox__to { color: #767676; font-size: 11px; }
-.mw-inbox__body { margin-top: 4px; color: #333; }
-.mw-phone-toast { position: fixed; bottom: 24px; right: 24px; width: 250px; background: #1c1c1e; color: #fff; border-radius: 16px; padding: 12px 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.4); z-index: 9998; transform: translateY(20px); opacity: 0; pointer-events: none; transition: opacity .3s, transform .3s; }
-.mw-phone-toast--show { opacity: 1; transform: translateY(0); }
-.mw-phone-toast__app { font-size: 10px; opacity: .6; text-transform: uppercase; letter-spacing: .5px; }
-.mw-phone-toast__from { font-weight: 700; font-size: 13px; margin-top: 3px; }
-.mw-phone-toast__body { font-size: 13px; margin-top: 2px; }
-.mw-phone-toast__to { font-size: 11px; opacity: .55; margin-top: 4px; }
+/* iPhone mock-up: lock screen (2FA + Mail notifications) and an in-phone Mail app */
+.mw-phone { position: fixed; top: 70px; right: 28px; width: 248px; height: 504px; z-index: 9998;
+  background: #000; border-radius: 44px; padding: 11px; box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+  opacity: 0; transform: translateY(14px) scale(.97); pointer-events: none; transition: opacity .35s, transform .35s; }
+.mw-phone--show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+.mw-phone__screen { position: relative; height: 100%; border-radius: 34px; overflow: hidden;
+  background: linear-gradient(160deg, #3a4a63 0%, #232c3c 55%, #161b26 100%); color: #fff; }
+.mw-phone__screen::before { content: ""; position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+  width: 92px; height: 26px; background: #000; border-radius: 16px; z-index: 6; }
+.mw-phone__statusbar { display: flex; justify-content: space-between; padding: 11px 20px 0; font-size: 11px; font-weight: 600; position: relative; z-index: 5; }
+.mw-phone__sig { letter-spacing: .5px; }
+/* Lock screen */
+.mw-phone__lock { position: absolute; inset: 32px 0 0; z-index: 2; }
+.mw-phone__time { text-align: center; font-size: 46px; font-weight: 300; margin-top: 6px; letter-spacing: 1px; }
+.mw-phone__date { text-align: center; font-size: 13px; opacity: .85; margin-top: 2px; }
+.mw-phone__notifs { padding: 18px 10px 0; display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow-y: auto; }
+.mw-phone__notif { background: rgba(245,245,247,0.94); color: #1a1a1a; border-radius: 16px; padding: 9px 11px;
+  backdrop-filter: blur(8px); box-shadow: 0 4px 14px rgba(0,0,0,0.18); transform: translateY(-6px); opacity: 0;
+  animation: mw-notif-in .45s ease forwards; }
+.mw-phone__notif--mail { cursor: pointer; }
+.mw-phone__notif--mail:active { transform: scale(.98); }
+.mw-phone__notif-head { display: flex; justify-content: space-between; font-size: 9.5px; font-weight: 600; color: #6b6b70; letter-spacing: .3px; }
+.mw-phone__notif-from { font-weight: 700; font-size: 12.5px; margin-top: 3px; }
+.mw-phone__notif-body { font-size: 12px; margin-top: 1px; line-height: 1.3; }
+.mw-phone__notif-hint { font-size: 10px; color: #0a7cff; font-weight: 600; margin-top: 5px; }
+.mw-phone__bar { width: 96px; height: 4px; background: #fff; opacity: .85; border-radius: 3px; margin: 7px auto 0; }
+@keyframes mw-notif-in { to { transform: translateY(0); opacity: 1; } }
+/* In-phone Mail app: slides up over the lock screen when a Mail notif is tapped */
+.mw-phone__mail { position: absolute; inset: 32px 0 0; z-index: 4; background: #fff; color: #1a1a1a;
+  display: flex; flex-direction: column; transform: translateY(100%); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+.mw-phone--mailopen .mw-phone__mail { transform: translateY(0); }
+.mw-mail__bar { display: flex; align-items: center; padding: 10px 12px 8px; border-bottom: 1px solid #ececef; background: #f7f7f9; }
+.mw-mail__back { border: 0; background: none; color: #0a7cff; font-size: 14px; font-weight: 600; cursor: pointer; padding: 0; }
+.mw-mail__appname { margin-left: auto; font-size: 12px; font-weight: 700; color: #1a1a1a; }
+.mw-mail__list { overflow-y: auto; flex: 1; }
+.mw-mail__item { padding: 12px 14px; border-bottom: 1px solid #f0f0f2; position: relative; }
+.mw-mail__item.is-new { background: #f5f8ff; }
+.mw-mail__item.is-new::before { content: ""; position: absolute; left: 5px; top: 17px; width: 8px; height: 8px; border-radius: 50%; background: #0a7cff; }
+.mw-mail__row { display: flex; justify-content: space-between; padding-left: 10px; }
+.mw-mail__sender { font-weight: 700; font-size: 13.5px; }
+.mw-mail__when { font-size: 11px; color: #8a8a8e; }
+.mw-mail__subj { font-weight: 600; font-size: 13px; margin-top: 2px; padding-left: 10px; }
+.mw-mail__to { font-size: 11px; color: #8a8a8e; padding-left: 10px; }
+.mw-mail__snippet { font-size: 12px; color: #555; margin-top: 3px; padding-left: 10px; line-height: 1.4; }
+/* Realistic PDF attachment chip */
+.mw-attach { display: flex; align-items: center; gap: 10px; margin: 10px 0 2px; margin-left: 10px;
+  padding: 8px 10px; border: 1px solid #e6e6ea; border-radius: 10px; background: #fafafb; max-width: 200px; }
+.mw-attach__icon { position: relative; width: 30px; height: 38px; flex: 0 0 30px;
+  background: #fff; border: 1px solid #dcdce1; border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+/* folded top-right corner */
+.mw-attach__fold { position: absolute; top: -1px; right: -1px; width: 11px; height: 11px;
+  background: linear-gradient(225deg, #e6e6ea 0 50%, transparent 50%); border-top-right-radius: 4px;
+  border-left: 1px solid #dcdce1; border-bottom: 1px solid #dcdce1; }
+/* red PDF banner across the lower part of the page */
+.mw-attach__tag { position: absolute; left: -1px; right: -1px; bottom: 6px; height: 13px;
+  background: #e0392b; color: #fff; font-size: 8px; font-weight: 800; letter-spacing: .5px;
+  display: flex; align-items: center; justify-content: center; border-radius: 2px; }
+.mw-attach__meta { min-width: 0; }
+.mw-attach__name { font-size: 12px; font-weight: 600; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mw-attach__size { font-size: 11px; color: #8a8a8e; margin-top: 1px; }
 .mw-badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 14px; }
 .mw-badge--resolved { background: #e6f5ea; color: #1f8a4c; }
 .mw-badge--routed { background: #fdeef0; color: #c8102e; }

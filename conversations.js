@@ -20,8 +20,8 @@ window.MyerConversations = (function () {
     /* ---- Returns ---- */
     ret_order: {
       messages: [
-        { type: "text", text: "Sure — I can help with a return. Here's your most recent order:" },
-        { type: "card", card: { kind: "order", id: "MYR-48217", item: "Country Road Wool Coat — Camel, Size 12", price: "$299.00", thumb: "#d7c4b8" } },
+        { type: "text", text: "Sure, I can help with a return. Here's your most recent order:" },
+        { type: "card", card: { kind: "order", id: "MYR-48217", item: "Country Road Wool Coat, Camel, Size 12", price: "$299.00", thumb: "#d7c4b8" } },
         { type: "text", text: "Why are you returning this item?" }
       ],
       quickReplies: [
@@ -38,7 +38,7 @@ window.MyerConversations = (function () {
       ]
     },
     ret_label: {
-      messages: [{ type: "text", text: "Done! 🎉 I've emailed a free returns label to you. Once we receive the coat, your refund of $299.00 will be processed to your original payment method within 3–5 business days." }],
+      messages: [{ type: "text", text: "Done! I've emailed a free returns label to you. Once we receive the coat, your refund of $299.00 will be processed to your original payment method within 3–5 business days." }],
       quickReplies: [{ label: "Anything else?", next: "welcome" }]
     },
     ret_store: {
@@ -50,14 +50,14 @@ window.MyerConversations = (function () {
     stk_ask: {
       messages: [{ type: "text", text: "I can check that for you. Which item and size?" }],
       quickReplies: [
-        { label: "Nike Air Max — Size 9", next: "stk_show" },
-        { label: "Seed Linen Dress — Size 10", next: "stk_show" }
+        { label: "Nike Air Max, Size 9", next: "stk_show" },
+        { label: "Seed Linen Dress, Size 10", next: "stk_show" }
       ]
     },
     stk_show: {
       messages: [
         { type: "text", text: "Here's the live availability:" },
-        { type: "card", card: { kind: "stock", item: "Nike Air Max 90 — White, Size 9", online: "In stock online", stores: [
+        { type: "card", card: { kind: "stock", item: "Nike Air Max 90, White, Size 9", online: "In stock online", stores: [
           { name: "Myer Melbourne", status: "in" },
           { name: "Myer Chadstone", status: "low" },
           { name: "Myer Bondi", status: "out" }
@@ -70,7 +70,7 @@ window.MyerConversations = (function () {
       ]
     },
     stk_cc: {
-      messages: [{ type: "text", text: "Reserved! 🛍 Your Nike Air Max 90 (Size 9) is held for Click & Collect at Myer Melbourne. You'll get a text when it's ready — usually within 2 hours." }],
+      messages: [{ type: "text", text: "Reserved! Your Nike Air Max 90 (Size 9) is held for Click & Collect at Myer Melbourne. You'll get a text when it's ready, usually within 2 hours." }],
       quickReplies: [{ label: "Anything else?", next: "welcome" }]
     },
     stk_notify: {
@@ -116,7 +116,7 @@ window.MyerConversations = (function () {
       ]
     },
     rew_applied: {
-      messages: [{ type: "text", text: "Applied! Your $20 MYER one credit will be waiting at checkout on your next order. ✨" }],
+      messages: [{ type: "text", text: "Applied! Your $20 MYER one credit will be waiting at checkout on your next order." }],
       quickReplies: [{ label: "Anything else?", next: "welcome" }]
     },
 
@@ -129,13 +129,13 @@ window.MyerConversations = (function () {
       system: "Sarah joined the conversation",
       speaker: "agent",
       agentName: "Sarah",
-      messages: [{ type: "text", text: "Hi, this is Sarah from Myer 👋 I've got your full conversation history here. How can I help you further today?" }],
+      messages: [{ type: "text", text: "Hi, this is Sarah from Myer. I've got your full conversation history here. How can I help you further today?" }],
       quickReplies: [{ label: "Thanks, that's all", next: "handoff_end" }]
     },
     handoff_end: {
       speaker: "agent",
       agentName: "Sarah",
-      messages: [{ type: "text", text: "You're very welcome — thanks for shopping with Myer! Have a lovely day. 💙" }],
+      messages: [{ type: "text", text: "You're very welcome, thanks for shopping with Myer! Have a lovely day." }],
       quickReplies: [{ label: "Back to start", next: "welcome" }]
     }
   };

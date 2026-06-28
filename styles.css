@@ -1,5 +1,5 @@
 /* ============================================================
-   Myer brand-faithful stylesheet — fidelity polish 2026-06-24
+   Myer brand-faithful stylesheet: fidelity polish 2026-06-24
    Palette: text #1f1f1f | bg #fff | red #e2231a | border #e6e6e6 | muted #767676
    ============================================================ */
 
@@ -33,7 +33,7 @@ img { display: block; max-width: 100%; height: auto; }
   margin: 0 auto 0;
 }
 
-/* ---- Announcement bar (not sticky — scrolls away) ---- */
+/* ---- Announcement bar (not sticky, scrolls away) ---- */
 .announcement-bar {
   background: #fedcd6;
 }
@@ -188,7 +188,7 @@ img { display: block; max-width: 100%; height: auto; }
 }
 
 /* Prevent mega-menu from going off the left edge of the viewport when
-   triggered by nav items near the right end — clamp to container bounds. */
+   triggered by nav items near the right end; clamp to container bounds. */
 .main-nav__item--mega:nth-last-child(-n+3) .mega-menu {
   left: auto;
   right: 0;
@@ -322,7 +322,7 @@ img { display: block; max-width: 100%; height: auto; }
   margin-bottom: 16px;
 }
 
-/* ---- Product row (Top Sale Picks) — PDP card look ---- */
+/* ---- Product row (Top Sale Picks): PDP card look ---- */
 .product-row {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
